@@ -42,6 +42,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-primary-glow: var(--primary-glow);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -82,6 +85,14 @@
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
   --ring: oklch(0.704 0.04 256.788);
+  --success: oklch(0.65 0.15 150);
+  --success-foreground: oklch(0.99 0.005 95);
+  --primary-glow: oklch(0.7 0.14 200);
+  --gradient-hero: linear-gradient(135deg, oklch(0.55 0.13 200), oklch(0.7 0.14 200));
+  --gradient-soft: linear-gradient(180deg, oklch(0.985 0.005 95), oklch(0.96 0.015 200));
+  --shadow-soft: 0 4px 24px -8px oklch(0.55 0.13 200 / 0.18);
+  --shadow-card: 0 2px 12px -4px oklch(0.22 0.03 250 / 0.08);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
