@@ -150,13 +150,32 @@ function Index() {
   };
 
   const onGenerate = async () => {
-    if (sources.length === 0) {
-      toast.error("Ajoutez au moins une source.");
+    // Auto-add pending text/url/video so users don't have to press "Ajouter" first
+    let effective = sources;
+    const pending: QuizSource[] = [];
+    if (text.trim()) pending.push({ id: uid(), kind: "text", label: "Texte collé", content: text.trim() });
+    if (url.trim()) pending.push({ id: uid(), kind: "url", label: url.trim(), content: url.trim() });
+    if (video.trim()) pending.push({ id: uid(), kind: "video", label: video.trim(), content: video.trim() });
+    if (pending.length) {
+      effective = [...sources, ...pending];
+      setSources(effective);
+      setText(""); setUrl(""); setVideo("");
+    }
+    if (effective.length === 0) {
+      toast.error("Ajoutez au moins une source (texte, lien, document, image ou vidéo).");
       return;
     }
     setGenerating(true);
     try {
-      const quiz = (await callFn("generate")) as Quiz;
+      const payloadSources = effective.map((s) => ({
+        kind: s.kind, label: s.label, content: s.content, dataUrl: s.dataUrl,
+      }));
+      const { data, error } = await supabase.functions.invoke("generate-quiz", {
+        body: { sources: payloadSources, mode: "generate", requestedCount: count },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const quiz = data as Quiz;
       if (!quiz?.questions?.length) throw new Error("Aucune question générée");
       saveSession({ quiz, answers: [] });
       navigate({ to: "/quiz" });
@@ -350,7 +369,7 @@ function Index() {
             className="h-14 text-base font-semibold shadow-[var(--shadow-soft)]"
             style={{ background: "var(--gradient-hero)" }}
             onClick={onGenerate}
-            disabled={generating || sources.length === 0}
+            disabled={generating || (sources.length === 0 && !text.trim() && !url.trim() && !video.trim())}
           >
             {generating ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> Génération du quiz…</>
@@ -358,6 +377,11 @@ function Index() {
               <>Lancer le quiz →</>
             )}
           </Button>
+          {sources.length === 0 && !text.trim() && !url.trim() && !video.trim() && (
+            <p className="text-center text-sm text-muted-foreground -mt-2">
+              Ajoutez d'abord une source (texte, lien, document, image ou vidéo) ci-dessus.
+            </p>
+          )}
         </div>
       </main>
     </div>
