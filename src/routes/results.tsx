@@ -6,6 +6,7 @@ import { Brand } from "@/components/Brand";
 import { clearSession, loadSession } from "@/lib/quiz-store";
 import type { QuizSession } from "@/lib/quiz-types";
 import { Check, X, Trophy, RotateCcw, Home } from "lucide-react";
+import { StudyPlan } from "@/components/StudyPlan";
 
 export const Route = createFileRoute("/results")({
   head: () => ({
@@ -127,6 +128,8 @@ function ResultsPage() {
               </div>
             </section>
           )}
+
+          <StudyPlan />
         </div>
       </main>
     </div>

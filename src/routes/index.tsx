@@ -188,7 +188,6 @@ function Index() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--gradient-soft)" }}>
-      <Toaster richColors position="top-center" />
       <header className="container mx-auto flex items-center justify-between px-6 py-6">
         <Brand />
         <span className="text-sm text-muted-foreground hidden sm:inline">
