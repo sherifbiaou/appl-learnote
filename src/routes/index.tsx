@@ -369,7 +369,7 @@ function Index() {
             className="h-14 text-base font-semibold shadow-[var(--shadow-soft)]"
             style={{ background: "var(--gradient-hero)" }}
             onClick={onGenerate}
-            disabled={generating || sources.length === 0}
+            disabled={generating || (sources.length === 0 && !text.trim() && !url.trim() && !video.trim())}
           >
             {generating ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> Génération du quiz…</>
@@ -377,6 +377,11 @@ function Index() {
               <>Lancer le quiz →</>
             )}
           </Button>
+          {sources.length === 0 && !text.trim() && !url.trim() && !video.trim() && (
+            <p className="text-center text-sm text-muted-foreground -mt-2">
+              Ajoutez d'abord une source (texte, lien, document, image ou vidéo) ci-dessus.
+            </p>
+          )}
         </div>
       </main>
     </div>
