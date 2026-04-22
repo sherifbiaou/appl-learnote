@@ -150,13 +150,32 @@ function Index() {
   };
 
   const onGenerate = async () => {
-    if (sources.length === 0) {
-      toast.error("Ajoutez au moins une source.");
+    // Auto-add pending text/url/video so users don't have to press "Ajouter" first
+    let effective = sources;
+    const pending: QuizSource[] = [];
+    if (text.trim()) pending.push({ id: uid(), kind: "text", label: "Texte collé", content: text.trim() });
+    if (url.trim()) pending.push({ id: uid(), kind: "url", label: url.trim(), content: url.trim() });
+    if (video.trim()) pending.push({ id: uid(), kind: "video", label: video.trim(), content: video.trim() });
+    if (pending.length) {
+      effective = [...sources, ...pending];
+      setSources(effective);
+      setText(""); setUrl(""); setVideo("");
+    }
+    if (effective.length === 0) {
+      toast.error("Ajoutez au moins une source (texte, lien, document, image ou vidéo).");
       return;
     }
     setGenerating(true);
     try {
-      const quiz = (await callFn("generate")) as Quiz;
+      const payloadSources = effective.map((s) => ({
+        kind: s.kind, label: s.label, content: s.content, dataUrl: s.dataUrl,
+      }));
+      const { data, error } = await supabase.functions.invoke("generate-quiz", {
+        body: { sources: payloadSources, mode: "generate", requestedCount: count },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const quiz = data as Quiz;
       if (!quiz?.questions?.length) throw new Error("Aucune question générée");
       saveSession({ quiz, answers: [] });
       navigate({ to: "/quiz" });
