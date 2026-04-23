@@ -9,10 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as QuizRouteImport } from './routes/quiz'
+import { Route as FormulasRouteImport } from './routes/formulas'
+import { Route as ExamRouteImport } from './routes/exam'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SummaryRoute = SummaryRouteImport.update({
+  id: '/summary',
+  path: '/summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultsRoute = ResultsRouteImport.update({
   id: '/results',
   path: '/results',
@@ -23,6 +31,16 @@ const QuizRoute = QuizRouteImport.update({
   path: '/quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormulasRoute = FormulasRouteImport.update({
+  id: '/formulas',
+  path: '/formulas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExamRoute = ExamRouteImport.update({
+  id: '/exam',
+  path: '/exam',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +49,62 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/exam': typeof ExamRoute
+  '/formulas': typeof FormulasRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/summary': typeof SummaryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/exam': typeof ExamRoute
+  '/formulas': typeof FormulasRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/summary': typeof SummaryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/exam': typeof ExamRoute
+  '/formulas': typeof FormulasRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/summary': typeof SummaryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/quiz' | '/results'
+  fullPaths: '/' | '/exam' | '/formulas' | '/quiz' | '/results' | '/summary'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/quiz' | '/results'
-  id: '__root__' | '/' | '/quiz' | '/results'
+  to: '/' | '/exam' | '/formulas' | '/quiz' | '/results' | '/summary'
+  id:
+    | '__root__'
+    | '/'
+    | '/exam'
+    | '/formulas'
+    | '/quiz'
+    | '/results'
+    | '/summary'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExamRoute: typeof ExamRoute
+  FormulasRoute: typeof FormulasRoute
   QuizRoute: typeof QuizRoute
   ResultsRoute: typeof ResultsRoute
+  SummaryRoute: typeof SummaryRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/summary': {
+      id: '/summary'
+      path: '/summary'
+      fullPath: '/summary'
+      preLoaderRoute: typeof SummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/results': {
       id: '/results'
       path: '/results'
@@ -75,6 +119,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/formulas': {
+      id: '/formulas'
+      path: '/formulas'
+      fullPath: '/formulas'
+      preLoaderRoute: typeof FormulasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exam': {
+      id: '/exam'
+      path: '/exam'
+      fullPath: '/exam'
+      preLoaderRoute: typeof ExamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,8 +145,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExamRoute: ExamRoute,
+  FormulasRoute: FormulasRoute,
   QuizRoute: QuizRoute,
   ResultsRoute: ResultsRoute,
+  SummaryRoute: SummaryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

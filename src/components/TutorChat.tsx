@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Send, X, Loader2 } from "lucide-react";
+import { Send, X, Loader2 } from "lucide-react";
+import { ShefMark } from "@/components/Brand";
 import { loadSession } from "@/lib/quiz-store";
 import { toast } from "sonner";
 
@@ -97,23 +98,28 @@ export function TutorChat() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full text-primary-foreground shadow-[var(--shadow-soft)] transition-transform hover:scale-105"
-        style={{ background: "var(--gradient-hero)" }}
-        aria-label="Ouvrir le tuteur IA"
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full text-[oklch(0.2_0.02_80)] shadow-[var(--shadow-glow)] transition-transform hover:scale-110"
+        style={{ background: "var(--gradient-gold)" }}
+        aria-label="Ouvrir Shef AI"
       >
-        <Sparkles className="h-6 w-6" />
+        <ShefMark className="h-7 w-7" />
       </button>
     );
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 z-50 flex h-[min(600px,80vh)] w-[min(420px,calc(100vw-3rem))] flex-col overflow-hidden shadow-[var(--shadow-soft)]">
-      <div className="flex items-center justify-between border-b px-4 py-3" style={{ background: "var(--gradient-hero)" }}>
-        <div className="flex items-center gap-2 text-primary-foreground">
-          <Sparkles className="h-4 w-4" />
-          <span className="font-semibold text-sm">Tuteur IA</span>
+    <Card className="fixed bottom-6 right-6 z-50 flex h-[min(600px,80vh)] w-[min(420px,calc(100vw-3rem))] flex-col overflow-hidden shadow-[var(--shadow-glow)] border-primary/40">
+      <div
+        className="flex items-center justify-between border-b border-primary/30 px-4 py-3 relative overflow-hidden"
+        style={{ background: "var(--gradient-gold)" }}
+      >
+        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "var(--pattern-zigzag)" }} />
+        <div className="flex items-center gap-2 text-[oklch(0.2_0.02_80)] relative z-10">
+          <ShefMark className="h-5 w-5" />
+          <span className="font-bold text-sm tracking-tight">Shef AI</span>
+          <span className="text-[10px] uppercase tracking-widest opacity-70">Tuteur</span>
         </div>
-        <button onClick={() => setOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground" aria-label="Fermer">
+        <button onClick={() => setOpen(false)} className="text-[oklch(0.2_0.02_80)]/80 hover:text-[oklch(0.2_0.02_80)] relative z-10" aria-label="Fermer">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -153,11 +159,11 @@ export function TutorChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-          placeholder="Pose ta question…"
+          placeholder="Pose ta question à Shef AI…"
           className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
           disabled={loading}
         />
-        <Button size="sm" onClick={send} disabled={loading || !input.trim()} style={{ background: "var(--gradient-hero)" }} className="text-primary-foreground">
+        <Button size="sm" onClick={send} disabled={loading || !input.trim()} style={{ background: "var(--gradient-gold)" }} className="text-[oklch(0.2_0.02_80)] font-semibold">
           <Send className="h-4 w-4" />
         </Button>
       </div>

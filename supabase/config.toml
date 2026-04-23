@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.tutor-ai]
 verify_jwt = false
+
+[functions.analyze-sources]
+verify_jwt = false
+
+[functions.adaptive-exam]
+verify_jwt = false

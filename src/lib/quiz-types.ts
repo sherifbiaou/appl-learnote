@@ -1,4 +1,4 @@
-export type SourceKind = "text" | "url" | "image" | "video" | "document";
+export type SourceKind = "text" | "url" | "image" | "video" | "document" | "video-file" | "websearch";
 
 export interface QuizSource {
   id: string;
@@ -6,6 +6,9 @@ export interface QuizSource {
   label: string;
   content?: string;
   dataUrl?: string;
+  // For local video files: base64 data URL + mime + size
+  mimeType?: string;
+  sizeBytes?: number;
 }
 
 export interface QuizQuestion {
