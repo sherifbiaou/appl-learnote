@@ -31,14 +31,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Shef AI — Tuteur intelligent et examens adaptatifs" },
+      { title: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
       { name: "description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
       { name: "author", content: "Shef AI" },
-      { property: "og:title", content: "Shef AI — Tuteur intelligent" },
-      { property: "og:description", content: "Crée des quiz, examens adaptatifs et fiches de révision à partir de tes propres ressources." },
+      { property: "og:title", content: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
+      { property: "og:description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@ShefAI" },
+      { name: "twitter:title", content: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
+      { name: "twitter:description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ab709b17-36f2-4018-afa1-9d5fd06e31b9" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ab709b17-36f2-4018-afa1-9d5fd06e31b9" },
     ],
     links: [
       {
