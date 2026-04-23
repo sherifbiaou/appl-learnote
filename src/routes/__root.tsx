@@ -31,14 +31,14 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Shef AI — Tuteur intelligent et examens adaptatifs" },
+      { name: "description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
+      { name: "author", content: "Shef AI" },
+      { property: "og:title", content: "Shef AI — Tuteur intelligent" },
+      { property: "og:description", content: "Crée des quiz, examens adaptatifs et fiches de révision à partir de tes propres ressources." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@ShefAI" },
     ],
     links: [
       {
