@@ -6,10 +6,12 @@ const corsHeaders = {
 };
 
 interface SourcePart {
-  kind: "text" | "url" | "image" | "video" | "document";
+  kind: "text" | "url" | "image" | "video" | "document" | "video-file" | "websearch";
   label?: string;
   content?: string; // text content or URL
   dataUrl?: string; // for images: base64 data URL
+  mimeType?: string; // for video-file
+  sizeBytes?: number;
 }
 
 serve(async (req) => {
@@ -32,6 +34,13 @@ serve(async (req) => {
     for (const s of sources) {
       if (s.kind === "image" && s.dataUrl) {
         userContent.push({ type: "image_url", image_url: { url: s.dataUrl } });
+      } else if (s.kind === "video-file" && s.dataUrl) {
+        // Gemini accepts inline video via image_url-style data URL on the gateway.
+        // Soft cap to avoid huge payloads (we already filter client-side at 20MB for direct mode).
+        userContent.push({ type: "image_url", image_url: { url: s.dataUrl } });
+        textParts.push(`[Vidéo locale "${s.label || "vidéo"}" jointe ci-dessus] — analyse son contenu visuel et audio.`);
+      } else if (s.kind === "websearch" && s.content) {
+        textParts.push(`[Recherche web Google demandée] Sujet/requête: "${s.content}". Utilise tes connaissances à jour pour couvrir ce sujet de façon factuelle, comme si tu avais consulté les meilleurs résultats Google récents.`);
       } else if (s.kind === "url" && s.content) {
         textParts.push(`[Lien web: ${s.content}] — utilise tes connaissances sur ce sujet/site.`);
       } else if (s.kind === "video" && s.content) {
