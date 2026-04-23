@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { saveSession } from "@/lib/quiz-store";
+import { saveSession, saveSources } from "@/lib/quiz-store";
 import type { QuizSource, Quiz } from "@/lib/quiz-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,9 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Brand } from "@/components/Brand";
 import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
 import {
   FileText, Link2, Image as ImageIcon, Video, Upload, X, Wand2, Loader2, Brain,
+  Search, FileVideo, BookOpen, Sigma, Timer,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -66,12 +66,14 @@ function Index() {
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
   const [video, setVideo] = useState("");
+  const [webQuery, setWebQuery] = useState("");
   const [count, setCount] = useState(10);
   const [suggesting, setSuggesting] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [topic, setTopic] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLInputElement>(null);
+  const videoFileRef = useRef<HTMLInputElement>(null);
 
   const addText = () => {
     if (!text.trim()) return;
@@ -96,6 +98,41 @@ function Index() {
       { id: uid(), kind: "video", label: video.trim(), content: video.trim() },
     ]);
     setVideo("");
+  };
+  const addWebSearch = () => {
+    if (!webQuery.trim()) return;
+    setSources((s) => [
+      ...s,
+      { id: uid(), kind: "websearch", label: `🔎 ${webQuery.trim()}`, content: webQuery.trim() },
+    ]);
+    setWebQuery("");
+  };
+  const addLocalVideos = async (files: FileList | null) => {
+    if (!files) return;
+    const MAX_DIRECT = 20 * 1024 * 1024; // 20MB
+    const newOnes: QuizSource[] = [];
+    for (const f of Array.from(files)) {
+      if (f.size > MAX_DIRECT) {
+        toast.warning(`"${f.name}" dépasse 20MB — l'IA s'appuiera sur le nom du fichier (transcription complète bientôt).`);
+        newOnes.push({
+          id: uid(),
+          kind: "video",
+          label: `🎬 ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB, trop volumineux)`,
+          content: `Vidéo locale "${f.name}" (${(f.size / 1024 / 1024).toFixed(1)} MB) — sujet à inférer du nom de fichier.`,
+        });
+      } else {
+        const dataUrl = await fileToDataUrl(f);
+        newOnes.push({
+          id: uid(),
+          kind: "video-file",
+          label: `🎬 ${f.name}`,
+          dataUrl,
+          mimeType: f.type,
+          sizeBytes: f.size,
+        });
+      }
+    }
+    setSources((s) => [...s, ...newOnes]);
   };
   const addFiles = async (files: FileList | null, kind: "document" | "image") => {
     if (!files) return;
@@ -156,10 +193,11 @@ function Index() {
     if (text.trim()) pending.push({ id: uid(), kind: "text", label: "Texte collé", content: text.trim() });
     if (url.trim()) pending.push({ id: uid(), kind: "url", label: url.trim(), content: url.trim() });
     if (video.trim()) pending.push({ id: uid(), kind: "video", label: video.trim(), content: video.trim() });
+    if (webQuery.trim()) pending.push({ id: uid(), kind: "websearch", label: `🔎 ${webQuery.trim()}`, content: webQuery.trim() });
     if (pending.length) {
       effective = [...sources, ...pending];
       setSources(effective);
-      setText(""); setUrl(""); setVideo("");
+      setText(""); setUrl(""); setVideo(""); setWebQuery("");
     }
     if (effective.length === 0) {
       toast.error("Ajoutez au moins une source (texte, lien, document, image ou vidéo).");
@@ -168,7 +206,7 @@ function Index() {
     setGenerating(true);
     try {
       const payloadSources = effective.map((s) => ({
-        kind: s.kind, label: s.label, content: s.content, dataUrl: s.dataUrl,
+        kind: s.kind, label: s.label, content: s.content, dataUrl: s.dataUrl, mimeType: s.mimeType,
       }));
       const { data, error } = await supabase.functions.invoke("generate-quiz", {
         body: { sources: payloadSources, mode: "generate", requestedCount: count },
@@ -177,6 +215,7 @@ function Index() {
       if (data?.error) throw new Error(data.error);
       const quiz = data as Quiz;
       if (!quiz?.questions?.length) throw new Error("Aucune question générée");
+      saveSources(effective);
       saveSession({ quiz, answers: [] });
       navigate({ to: "/quiz" });
     } catch (e: any) {
