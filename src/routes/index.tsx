@@ -229,9 +229,17 @@ function Index() {
     <div className="min-h-screen" style={{ background: "var(--gradient-soft)" }}>
       <header className="container mx-auto flex items-center justify-between px-6 py-6">
         <Brand />
-        <span className="text-sm text-muted-foreground hidden sm:inline">
-          Flash quiz à partir de vos ressources
-        </span>
+        <nav className="hidden sm:flex items-center gap-1 text-sm">
+          <Link to="/summary" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
+            <BookOpen className="h-4 w-4" /> Résumé
+          </Link>
+          <Link to="/formulas" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
+            <Sigma className="h-4 w-4" /> Formules
+          </Link>
+          <Link to="/exam" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
+            <Timer className="h-4 w-4" /> Examen
+          </Link>
+        </nav>
       </header>
 
       <main className="container mx-auto px-6 pb-20">
@@ -340,6 +348,41 @@ function Index() {
                     onClick={() => imgRef.current?.click()}
                   >
                     Choisir des images
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+                  <Label className="mb-2 flex items-center gap-2 text-sm">
+                    <Search className="h-4 w-4 text-primary" /> Recherche web Google
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground mb-2">L'IA va explorer le web pour ce sujet.</p>
+                  <div className="flex gap-2">
+                    <Input
+                      value={webQuery}
+                      onChange={(e) => setWebQuery(e.target.value)}
+                      placeholder="ex: photosynthèse niveau lycée"
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addWebSearch(); } }}
+                    />
+                    <Button onClick={addWebSearch} variant="secondary">+</Button>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+                  <Label className="mb-2 flex items-center gap-2 text-sm">
+                    <FileVideo className="h-4 w-4 text-primary" /> Vidéo locale
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground mb-2">≤20MB analysé directement, sinon nom utilisé.</p>
+                  <input
+                    ref={videoFileRef}
+                    type="file"
+                    multiple
+                    accept="video/*"
+                    className="hidden"
+                    onChange={(e) => addLocalVideos(e.target.files)}
+                  />
+                  <Button variant="outline" className="w-full" onClick={() => videoFileRef.current?.click()}>
+                    Importer une vidéo
                   </Button>
                 </div>
               </div>
