@@ -239,6 +239,9 @@ function Index() {
           <Link to="/exam" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
             <Timer className="h-4 w-4" /> Examen
           </Link>
+          <Link to="/studio" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
+            <Sparkles className="h-4 w-4" /> Studio
+          </Link>
         </nav>
       </header>
 
