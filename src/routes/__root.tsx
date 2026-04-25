@@ -33,7 +33,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
       { name: "description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
-      { name: "author", content: "Shef AI" },
+      { name: "author", content: "SmartQuiz" },
       { property: "og:title", content: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
       { property: "og:description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
       { property: "og:type", content: "website" },
