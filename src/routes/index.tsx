@@ -13,7 +13,7 @@ import { Brand } from "@/components/Brand";
 import { toast } from "sonner";
 import {
   FileText, Link2, Image as ImageIcon, Video, Upload, X, Wand2, Loader2, Brain,
-  Search, FileVideo, BookOpen, Sigma, Timer,
+  Search, FileVideo, BookOpen, Sigma, Timer, Sparkles,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
