@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Créez des quiz personnalisés à partir de vos documents, images, vidéos et liens. Inspiré de Question pour un champion.",
+          "Créez des quiz personnalisés à partir de vos documents, images, vidéos et liens avec SmartQuiz.",
       },
       { property: "og:title", content: "appQuiz — Flash quiz interactif" },
       {
@@ -245,7 +245,7 @@ function Index() {
       <main className="container mx-auto px-6 pb-20">
         <section className="mx-auto max-w-3xl text-center pt-8 pb-12">
           <Badge variant="secondary" className="mb-4 gap-1">
-            <Brain className="h-3 w-3" /> Inspiré de Question pour un champion
+            <Brain className="h-3 w-3" /> SmartQuiz — tuteur intelligent
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-foreground">
             Apprenez plus vite,

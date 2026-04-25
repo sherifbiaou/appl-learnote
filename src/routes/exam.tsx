@@ -15,7 +15,7 @@ import { Loader2, Timer, BookOpen, Sigma, Trophy, AlertTriangle, Play, Check, X 
 export const Route = createFileRoute("/exam")({
   head: () => ({
     meta: [
-      { title: "Examen adaptatif chronométré — Shef AI" },
+      { title: "Examen adaptatif chronométré — SmartQuiz" },
       { name: "description", content: "Mode examen avec chronomètre où l'IA ajuste la difficulté selon vos réponses." },
     ],
   }),
