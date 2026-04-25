@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Timer, BookOpen, Sigma, Trophy, AlertTriangle, Play, Check, X as XIcon } from "lucide-react";
+import { Loader2, Timer, BookOpen, Sigma, Trophy, AlertTriangle, Play, Check, X as XIcon, Save, Trash2, RotateCcw, Library } from "lucide-react";
+import { loadExamBank, addExam, removeExam, updateExam, type SavedExam } from "@/lib/exam-bank";
 
 export const Route = createFileRoute("/exam")({
   head: () => ({
@@ -45,9 +46,13 @@ function ExamPage() {
   const [loadingNext, setLoadingNext] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [targetDiff, setTargetDiff] = useState(3);
+  const [startDiff, setStartDiff] = useState(3);
+  const [examName, setExamName] = useState("");
+  const [bank, setBank] = useState<SavedExam[]>([]);
+  const [activeExamId, setActiveExamId] = useState<string | null>(null);
   const finishedRef = useRef(false);
 
-  useEffect(() => { setSources(loadSources()); }, []);
+  useEffect(() => { setSources(loadSources()); setBank(loadExamBank()); }, []);
 
   // Timer
   useEffect(() => {
@@ -86,10 +91,10 @@ function ExamPage() {
     if (sources.length === 0) { toast.error("Aucune source — retourne à l'accueil pour en ajouter."); return; }
     finishedRef.current = false;
     setAnswers([]);
-    setTargetDiff(3);
+    setTargetDiff(startDiff);
     setSecondsLeft(totalMin * 60);
     setPhase("running");
-    await fetchNext([], 3);
+    await fetchNext([], startDiff);
   };
 
   const submit = () => {
@@ -113,8 +118,52 @@ function ExamPage() {
   const finish = (final?: AnswerRec[]) => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    const finalAnswers = final ?? answers;
     if (final) setAnswers(final);
     setPhase("done");
+    if (activeExamId) {
+      const score = finalAnswers.filter((a) => a.correct).length;
+      updateExam(activeExamId, { lastScore: { score, total: finalAnswers.length, finalDiff: targetDiff, at: Date.now() } });
+      setBank(loadExamBank());
+    }
+  };
+
+  const saveCurrentConfig = () => {
+    if (sources.length === 0) { toast.error("Ajoute des sources d'abord."); return; }
+    const name = examName.trim() || `Examen ${new Date().toLocaleDateString("fr-FR")} — ${totalQ}Q/${totalMin}min`;
+    const exam: SavedExam = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      name,
+      totalQ,
+      totalMin,
+      startDifficulty: startDiff,
+      sources,
+      createdAt: Date.now(),
+    };
+    addExam(exam);
+    setBank(loadExamBank());
+    setExamName("");
+    toast.success("Examen enregistré dans la banque");
+  };
+
+  const replayExam = async (e: SavedExam) => {
+    setSources(e.sources);
+    setTotalQ(e.totalQ);
+    setTotalMin(e.totalMin);
+    setStartDiff(e.startDifficulty);
+    setActiveExamId(e.id);
+    finishedRef.current = false;
+    setAnswers([]);
+    setTargetDiff(e.startDifficulty);
+    setSecondsLeft(e.totalMin * 60);
+    setPhase("running");
+    await fetchNext([], e.startDifficulty);
+  };
+
+  const deleteSaved = (id: string) => {
+    removeExam(id);
+    setBank(loadExamBank());
+    toast.message("Examen supprimé");
   };
 
   const fmtTime = (s: number) => {
@@ -158,6 +207,14 @@ function ExamPage() {
                     <Label className="text-sm">Durée totale (minutes)</Label>
                     <Input type="number" min={3} max={180} value={totalMin} onChange={(e) => setTotalMin(Math.max(3, Math.min(180, Number(e.target.value) || 15)))} className="mt-1" />
                   </div>
+                  <div>
+                    <Label className="text-sm">Difficulté de départ (1-5)</Label>
+                    <Input type="number" min={1} max={5} value={startDiff} onChange={(e) => setStartDiff(Math.max(1, Math.min(5, Number(e.target.value) || 3)))} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-sm">Nom (pour la banque)</Label>
+                    <Input value={examName} onChange={(e) => setExamName(e.target.value)} placeholder="ex. Révision chap. 3" className="mt-1" />
+                  </div>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   <p>📚 {sources.length} source{sources.length > 1 ? "s" : ""} chargée{sources.length > 1 ? "s" : ""}.</p>
@@ -165,11 +222,55 @@ function ExamPage() {
                     <p className="text-destructive mt-1">Aucune source. <Link to="/" className="underline">Va sur l'accueil pour en ajouter.</Link></p>
                   )}
                 </div>
-                <Button onClick={start} disabled={sources.length === 0} size="lg" className="w-full text-[oklch(0.2_0.02_80)] font-semibold" style={{ background: "var(--gradient-gold)" }}>
-                  <Play className="h-4 w-4" /> Démarrer l'examen
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button onClick={start} disabled={sources.length === 0} size="lg" className="flex-1 text-[oklch(0.2_0.02_80)] font-semibold" style={{ background: "var(--gradient-gold)" }}>
+                    <Play className="h-4 w-4" /> Démarrer
+                  </Button>
+                  <Button onClick={saveCurrentConfig} disabled={sources.length === 0} size="lg" variant="outline" className="flex-1">
+                    <Save className="h-4 w-4" /> Enregistrer dans la banque
+                  </Button>
+                </div>
               </div>
             </Card>
+
+            <div className="mt-8">
+              <div className="flex items-center gap-2 mb-3">
+                <Library className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-semibold">Banque d'examens</h2>
+                <Badge variant="secondary">{bank.length}</Badge>
+              </div>
+              {bank.length === 0 ? (
+                <Card className="p-5 text-sm text-muted-foreground">
+                  Aucun examen enregistré. Configure un examen ci-dessus puis clique sur « Enregistrer dans la banque » pour le retrouver et le refaire plus tard.
+                </Card>
+              ) : (
+                <div className="grid gap-3">
+                  {bank.map((e) => (
+                    <Card key={e.id} className="p-4 flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold truncate">{e.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {e.totalQ} questions • {e.totalMin} min • difficulté départ {e.startDifficulty}/5 • {e.sources.length} source{e.sources.length > 1 ? "s" : ""}
+                        </p>
+                        {e.lastScore && (
+                          <p className="text-xs text-primary mt-1">
+                            Dernier score : {e.lastScore.score}/{e.lastScore.total} ({Math.round((e.lastScore.score / Math.max(1, e.lastScore.total)) * 100)}%) — diff finale {e.lastScore.finalDiff}/5
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button size="sm" onClick={() => replayExam(e)} className="text-[oklch(0.2_0.02_80)] font-semibold" style={{ background: "var(--gradient-gold)" }}>
+                          <RotateCcw className="h-4 w-4" /> Refaire
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => deleteSaved(e.id)} aria-label="Supprimer">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           </>
         )}
 
@@ -277,7 +378,7 @@ function ExamPage() {
             </div>
 
             <div className="flex gap-2 justify-center">
-              <Button variant="outline" onClick={() => { setPhase("setup"); setAnswers([]); setCurrent(null); }}>Refaire</Button>
+              <Button variant="outline" onClick={() => { setPhase("setup"); setAnswers([]); setCurrent(null); setActiveExamId(null); }}>Retour configuration</Button>
               <Button onClick={() => navigate({ to: "/" })} style={{ background: "var(--gradient-gold)" }} className="text-[oklch(0.2_0.02_80)] font-semibold">Retour accueil</Button>
             </div>
           </Card>
