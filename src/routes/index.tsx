@@ -13,7 +13,7 @@ import { Brand } from "@/components/Brand";
 import { toast } from "sonner";
 import {
   FileText, Link2, Image as ImageIcon, Video, Upload, X, Wand2, Loader2, Brain,
-  Search, FileVideo, BookOpen, Sigma, Timer,
+  Search, FileVideo, BookOpen, Sigma, Timer, Sparkles,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -238,6 +238,9 @@ function Index() {
           </Link>
           <Link to="/exam" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
             <Timer className="h-4 w-4" /> Examen
+          </Link>
+          <Link to="/studio" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
+            <Sparkles className="h-4 w-4" /> Studio
           </Link>
         </nav>
       </header>

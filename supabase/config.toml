@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.adaptive-exam]
 verify_jwt = false
+
+[functions.visual-studio]
+verify_jwt = false

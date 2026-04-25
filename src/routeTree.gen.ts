@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SummaryRouteImport } from './routes/summary'
+import { Route as StudioRouteImport } from './routes/studio'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as FormulasRouteImport } from './routes/formulas'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SummaryRoute = SummaryRouteImport.update({
   id: '/summary',
   path: '/summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioRoute = StudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultsRoute = ResultsRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/formulas': typeof FormulasRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/studio': typeof StudioRoute
   '/summary': typeof SummaryRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/formulas': typeof FormulasRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/studio': typeof StudioRoute
   '/summary': typeof SummaryRoute
 }
 export interface FileRoutesById {
@@ -70,13 +78,28 @@ export interface FileRoutesById {
   '/formulas': typeof FormulasRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/studio': typeof StudioRoute
   '/summary': typeof SummaryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exam' | '/formulas' | '/quiz' | '/results' | '/summary'
+  fullPaths:
+    | '/'
+    | '/exam'
+    | '/formulas'
+    | '/quiz'
+    | '/results'
+    | '/studio'
+    | '/summary'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/exam' | '/formulas' | '/quiz' | '/results' | '/summary'
+  to:
+    | '/'
+    | '/exam'
+    | '/formulas'
+    | '/quiz'
+    | '/results'
+    | '/studio'
+    | '/summary'
   id:
     | '__root__'
     | '/'
@@ -84,6 +107,7 @@ export interface FileRouteTypes {
     | '/formulas'
     | '/quiz'
     | '/results'
+    | '/studio'
     | '/summary'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +117,7 @@ export interface RootRouteChildren {
   FormulasRoute: typeof FormulasRoute
   QuizRoute: typeof QuizRoute
   ResultsRoute: typeof ResultsRoute
+  StudioRoute: typeof StudioRoute
   SummaryRoute: typeof SummaryRoute
 }
 
@@ -103,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/summary'
       fullPath: '/summary'
       preLoaderRoute: typeof SummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio': {
+      id: '/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/results': {
@@ -149,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormulasRoute: FormulasRoute,
   QuizRoute: QuizRoute,
   ResultsRoute: ResultsRoute,
+  StudioRoute: StudioRoute,
   SummaryRoute: SummaryRoute,
 }
 export const routeTree = rootRouteImport
