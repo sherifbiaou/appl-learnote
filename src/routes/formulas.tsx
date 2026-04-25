@@ -15,7 +15,7 @@ import { Loader2, Sigma, BookOpen, Timer, Sparkles, ChevronRight } from "lucide-
 export const Route = createFileRoute("/formulas")({
   head: () => ({
     meta: [
-      { title: "Formules détectées — Shef AI" },
+      { title: "Formules détectées — SmartQuiz" },
       { name: "description", content: "Formules extraites de vos sources, affichées en LaTeX avec démonstration interactive." },
     ],
   }),

@@ -13,7 +13,7 @@ import { Loader2, BookOpen, Sigma, Timer, Sparkles } from "lucide-react";
 export const Route = createFileRoute("/summary")({
   head: () => ({
     meta: [
-      { title: "Résumé des sources — Shef AI" },
+      { title: "Résumé des sources — SmartQuiz" },
       { name: "description", content: "Résumé structuré et concepts clés extraits par l'IA de vos sources." },
     ],
   }),
@@ -66,7 +66,7 @@ function SummaryPage() {
         <div className="mb-8">
           <Badge variant="secondary" className="mb-3 gap-1"><BookOpen className="h-3 w-3" /> Synthèse IA</Badge>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Résumé des sources</h1>
-          <p className="mt-2 text-muted-foreground">Une synthèse structurée et hiérarchisée de tout ton contenu, par Shef AI.</p>
+          <p className="mt-2 text-muted-foreground">Une synthèse structurée et hiérarchisée de tout ton contenu, par SmartQuiz.</p>
         </div>
 
         <Card className="p-6 mb-6 relative overflow-hidden">

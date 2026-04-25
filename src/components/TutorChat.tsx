@@ -100,7 +100,7 @@ export function TutorChat() {
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full text-[oklch(0.2_0.02_80)] shadow-[var(--shadow-glow)] transition-transform hover:scale-110"
         style={{ background: "var(--gradient-gold)" }}
-        aria-label="Ouvrir Shef AI"
+        aria-label="Ouvrir SmartQuiz"
       >
         <ShefMark className="h-7 w-7" />
       </button>
@@ -116,7 +116,7 @@ export function TutorChat() {
         <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "var(--pattern-zigzag)" }} />
         <div className="flex items-center gap-2 text-[oklch(0.2_0.02_80)] relative z-10">
           <ShefMark className="h-5 w-5" />
-          <span className="font-bold text-sm tracking-tight">Shef AI</span>
+          <span className="font-bold text-sm tracking-tight">SmartQuiz</span>
           <span className="text-[10px] uppercase tracking-widest opacity-70">Tuteur</span>
         </div>
         <button onClick={() => setOpen(false)} className="text-[oklch(0.2_0.02_80)]/80 hover:text-[oklch(0.2_0.02_80)] relative z-10" aria-label="Fermer">
@@ -159,7 +159,7 @@ export function TutorChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-          placeholder="Pose ta question à Shef AI…"
+          placeholder="Pose ta question à SmartQuiz…"
           className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
           disabled={loading}
         />
