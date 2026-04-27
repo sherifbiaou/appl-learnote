@@ -892,11 +892,13 @@ function VersionStrip({
   versionsCount,
   currentIdx,
   onRestore,
+  onCompare,
 }: {
   activeItem: SessionItem | null;
   versionsCount: number;
   currentIdx: number;
   onRestore: (i: number) => void;
+  onCompare: (a: number, b: number) => void;
 }) {
   if (!activeItem || versionsCount <= 1) return null;
   const versions = activeItem.versions ?? [];
@@ -933,7 +935,194 @@ function VersionStrip({
           );
         })}
       </div>
-      <p className="mt-2 text-[11px] text-muted-foreground">Clique sur une version pour la restaurer avant d'exporter ou de sauvegarder. Toute nouvelle régénération s'ajoutera comme nouvelle version.</p>
+      <div className="mt-2 flex items-center justify-between gap-2 flex-wrap">
+        <p className="text-[11px] text-muted-foreground">Clique sur une version pour la restaurer. Compare deux versions pour voir précisément ce qui a changé.</p>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">Comparer :</span>
+          {versions.length >= 2 && (
+            <>
+              <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => onCompare(Math.max(0, currentIdx - 1), currentIdx)}>
+                <GitCompare className="h-3 w-3" /> v{Math.max(0, currentIdx - 1) + 1} ↔ v{currentIdx + 1}
+              </Button>
+              <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => onCompare(0, versions.length - 1)}>
+                v1 ↔ v{versions.length}
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Diff helpers + dialog ----------------
+
+type DiffPart = { type: "same" | "add" | "del"; value: string };
+
+/** Word-level LCS diff for prompts and short text. */
+function diffWords(a: string, b: string): DiffPart[] {
+  const aw = a.split(/(\s+)/);
+  const bw = b.split(/(\s+)/);
+  const n = aw.length, m = bw.length;
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = aw[i] === bw[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+  const out: DiffPart[] = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (aw[i] === bw[j]) { out.push({ type: "same", value: aw[i] }); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { out.push({ type: "del", value: aw[i] }); i++; }
+    else { out.push({ type: "add", value: bw[j] }); j++; }
+  }
+  while (i < n) { out.push({ type: "del", value: aw[i++] }); }
+  while (j < m) { out.push({ type: "add", value: bw[j++] }); }
+  return out;
+}
+
+function PromptDiff({ a, b }: { a: string; b: string }) {
+  const parts = diffWords(a, b);
+  return (
+    <div className="rounded-md border bg-card/40 p-3 text-sm leading-relaxed">
+      {parts.map((p, i) => {
+        if (p.type === "same") return <span key={i}>{p.value}</span>;
+        if (p.type === "add") return <span key={i} className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 rounded px-0.5">{p.value}</span>;
+        return <span key={i} className="bg-red-500/20 text-red-700 dark:text-red-300 line-through rounded px-0.5">{p.value}</span>;
+      })}
+    </div>
+  );
+}
+
+function ChartDiff({ a, b }: { a: ChartData; b: ChartData }) {
+  const fields: { label: string; va: string; vb: string }[] = [
+    { label: "Titre", va: a.title, vb: b.title },
+    { label: "Type", va: a.chartType, vb: b.chartType },
+    { label: "Axe X", va: a.xKey, vb: b.xKey },
+    { label: "Séries", va: a.series.map((s) => s.name).join(", "), vb: b.series.map((s) => s.name).join(", ") },
+    { label: "Nb. points", va: String(a.data.length), vb: String(b.data.length) },
+    { label: "Insight", va: a.insight, vb: b.insight },
+  ];
+  return (
+    <div className="space-y-2">
+      {fields.map((f) => {
+        const changed = f.va !== f.vb;
+        return (
+          <div key={f.label} className={`rounded-md border p-2 text-xs ${changed ? "border-amber-500/40 bg-amber-500/5" : ""}`}>
+            <div className="font-semibold mb-1 flex items-center gap-2">
+              {f.label} {changed && <Badge variant="outline" className="text-[9px]">modifié</Badge>}
+            </div>
+            {changed ? <PromptDiff a={f.va} b={f.vb} /> : <div className="text-muted-foreground">{f.va}</div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TableDiff({ a, b }: { a: TableData; b: TableData }) {
+  const fields: { label: string; va: string; vb: string }[] = [
+    { label: "Titre", va: a.title, vb: b.title },
+    { label: "Colonnes", va: a.columns.join(" | "), vb: b.columns.join(" | ") },
+    { label: "Nb. lignes", va: String(a.rows.length), vb: String(b.rows.length) },
+    { label: "Insight", va: a.insight, vb: b.insight },
+  ];
+  return (
+    <div className="space-y-2">
+      {fields.map((f) => {
+        const changed = f.va !== f.vb;
+        return (
+          <div key={f.label} className={`rounded-md border p-2 text-xs ${changed ? "border-amber-500/40 bg-amber-500/5" : ""}`}>
+            <div className="font-semibold mb-1 flex items-center gap-2">
+              {f.label} {changed && <Badge variant="outline" className="text-[9px]">modifié</Badge>}
+            </div>
+            {changed ? <PromptDiff a={f.va} b={f.vb} /> : <div className="text-muted-foreground">{f.va}</div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DiffDialog({
+  open, onOpenChange, item, leftIdx, rightIdx,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  item: SessionItem | null;
+  leftIdx: number | null;
+  rightIdx: number | null;
+}) {
+  if (!item || leftIdx === null || rightIdx === null) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent />
+      </Dialog>
+    );
+  }
+  const versions = item.versions ?? [];
+  const left = versions[leftIdx];
+  const right = versions[rightIdx];
+  if (!left || !right) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Comparaison impossible</DialogTitle>
+            <DialogDescription>Versions introuvables.</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <GitCompare className="h-5 w-5 text-primary" /> Diff — v{leftIdx + 1} ↔ v{rightIdx + 1}
+          </DialogTitle>
+          <DialogDescription>
+            Rouge = retiré (v{leftIdx + 1}) • Vert = ajouté (v{rightIdx + 1}). Les sections marquées « modifié » ont changé entre les deux versions.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <section>
+            <h3 className="text-sm font-semibold mb-2">Prompt</h3>
+            <PromptDiff a={left.prompt} b={right.prompt} />
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              v{leftIdx + 1} • {new Date(left.at).toLocaleString("fr-FR")} → v{rightIdx + 1} • {new Date(right.at).toLocaleString("fr-FR")}
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-sm font-semibold mb-2">Contenu</h3>
+            {left.imageUrl && right.imageUrl ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">v{leftIdx + 1}</div>
+                  <img src={left.imageUrl} alt={`v${leftIdx + 1}`} className="w-full rounded-lg border" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">v{rightIdx + 1}</div>
+                  <img src={right.imageUrl} alt={`v${rightIdx + 1}`} className="w-full rounded-lg border" />
+                </div>
+              </div>
+            ) : left.chart && right.chart ? (
+              <ChartDiff a={left.chart} b={right.chart} />
+            ) : left.table && right.table ? (
+              <TableDiff a={left.table} b={right.table} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Les deux versions n'ont pas le même type de contenu — comparaison limitée au prompt.</p>
+            )}
+          </section>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
     </div>
   );
 }
