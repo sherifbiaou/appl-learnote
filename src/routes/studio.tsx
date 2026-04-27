@@ -14,7 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, ImageIcon, BookOpenCheck, BarChart3, Table as TableIcon, Sparkles, Download, BookOpen, Sigma, Timer, Palette, FileDown, RefreshCw, Check, X, Trash2, Save, FolderOpen, History } from "lucide-react";
+import { Loader2, ImageIcon, BookOpenCheck, BarChart3, Table as TableIcon, Sparkles, Download, BookOpen, Sigma, Timer, Palette, FileDown, RefreshCw, Check, X, Trash2, Save, FolderOpen, History, GitCompare } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, Legend, CartesianGrid,
@@ -267,6 +268,17 @@ function StudioPage() {
   const activeItem = activeItemId ? session.find((it) => it.id === activeItemId) ?? null : null;
   const versionsCount = activeItem?.versions?.length ?? 0;
   const currentVersionIdx = activeItem?.currentVersionIndex ?? 0;
+
+  // Diff comparison state
+  const [diffOpen, setDiffOpen] = useState(false);
+  const [diffLeft, setDiffLeft] = useState<number | null>(null);
+  const [diffRight, setDiffRight] = useState<number | null>(null);
+
+  const openDiff = (a: number, b: number) => {
+    setDiffLeft(a);
+    setDiffRight(b);
+    setDiffOpen(true);
+  };
 
   const downloadImage = () => {
     if (!imageUrl) return;
@@ -675,7 +687,7 @@ function StudioPage() {
               </div>
             </div>
             <img src={imageUrl} alt={prompt} className="w-full rounded-lg border" />
-            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} onCompare={openDiff} />
           </Card>
         )}
 
@@ -725,7 +737,7 @@ function StudioPage() {
                 <ul className="list-disc pl-4 space-y-0.5">{chart.citations.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             ) : null}
-            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} onCompare={openDiff} />
           </Card>
         )}
 
@@ -760,7 +772,7 @@ function StudioPage() {
                 <ul className="list-disc pl-4 space-y-0.5">{table.citations.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             ) : null}
-            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} onCompare={openDiff} />
           </Card>
         )}
 
@@ -842,6 +854,14 @@ function StudioPage() {
           )}
         </Card>
       </main>
+
+      <DiffDialog
+        open={diffOpen}
+        onOpenChange={setDiffOpen}
+        item={activeItem}
+        leftIdx={diffLeft}
+        rightIdx={diffRight}
+      />
     </div>
   );
 }
