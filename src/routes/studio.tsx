@@ -651,7 +651,7 @@ function StudioPage() {
             </div>
 
             <Button
-              onClick={generate}
+              onClick={() => generate()}
               disabled={loading || (mode === "comic" && !scenarioValidated)}
               size="lg"
               className="w-full text-[oklch(0.2_0.02_80)] font-semibold"
@@ -670,7 +670,7 @@ function StudioPage() {
             <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
               <h2 className="font-semibold">{mode === "comic" ? "BD pédagogique" : "Image générée"}</h2>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={generate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
+                <Button size="sm" variant="outline" onClick={regenerate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
                 <Button size="sm" variant="outline" onClick={downloadImage}><Download className="h-4 w-4" /> Télécharger</Button>
               </div>
             </div>
@@ -685,7 +685,7 @@ function StudioPage() {
                 <h2 className="text-lg font-semibold">{chart.title}</h2>
                 {chart.description && <p className="text-sm text-muted-foreground mt-1">{chart.description}</p>}
               </div>
-              <Button size="sm" variant="outline" onClick={regenerateChart}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
+              <Button size="sm" variant="outline" onClick={regenerate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
             </div>
             <div className="h-80 mt-4" ref={chartRef}>
               <ResponsiveContainer width="100%" height="100%">
@@ -732,7 +732,7 @@ function StudioPage() {
             <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
               <h2 className="text-lg font-semibold">{table.title}</h2>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={generate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
+                <Button size="sm" variant="outline" onClick={regenerate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
                 <Button size="sm" variant="outline" onClick={exportTableCsv}><Download className="h-4 w-4" /> CSV</Button>
               </div>
             </div>
