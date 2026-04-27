@@ -63,6 +63,15 @@ interface SessionItem {
   imageUrl?: string;
   chart?: ChartData;
   table?: TableData;
+  versions?: ItemVersion[];
+  currentVersionIndex?: number;
+}
+interface ItemVersion {
+  at: number;
+  prompt: string;
+  imageUrl?: string;
+  chart?: ChartData;
+  table?: TableData;
 }
 
 const PALETTE = ["#d4a017", "#7aa2ff", "#9b6dff", "#ff8a5b", "#3ec9a7", "#e64980"];
@@ -105,6 +114,8 @@ function StudioPage() {
 
   // Session items (everything generated this session) for PDF export
   const [session, setSession] = useState<SessionItem[]>([]);
+  // Active item id (the visual currently displayed) — regenerations stack onto it
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   // History (saved studio sessions)
   const [history, setHistory] = useState<SavedStudioSession[]>([]);
@@ -160,7 +171,7 @@ function StudioPage() {
     setScenario({ ...scenario, panels });
   };
 
-  const generate = async () => {
+  const generate = async (opts: { regenerate?: boolean } = {}) => {
     if (!prompt.trim()) { toast.error("Décris ce que tu veux générer."); return; }
     if (mode === "comic" && !scenarioValidated) { toast.error("Génère et valide d'abord le scénario."); return; }
     setLoading(true);
@@ -178,25 +189,81 @@ function StudioPage() {
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
 
-      const item: SessionItem = { id: Math.random().toString(36).slice(2), mode, prompt };
+      const newVersion: ItemVersion = { at: Date.now(), prompt };
       if (mode === "image" || mode === "comic") {
         setImageUrl((data as any).imageUrl);
-        item.imageUrl = (data as any).imageUrl;
+        newVersion.imageUrl = (data as any).imageUrl;
       } else if (mode === "chart") {
         setChart(data as ChartData);
-        item.chart = data as ChartData;
+        newVersion.chart = data as ChartData;
       } else if (mode === "table") {
         setTable(data as TableData);
-        item.table = data as TableData;
+        newVersion.table = data as TableData;
       }
-      setSession((s) => [...s, item]);
+
+      // If regenerating an existing active item of the same mode, push a new version onto it.
+      const existing = activeItemId ? session.find((it) => it.id === activeItemId) : null;
+      if (opts.regenerate && existing && existing.mode === mode) {
+        setSession((s) => s.map((it) => {
+          if (it.id !== existing.id) return it;
+          const versions = [...(it.versions ?? [{ at: it.versions?.[0]?.at ?? Date.now(), prompt: it.prompt, imageUrl: it.imageUrl, chart: it.chart, table: it.table }]), newVersion];
+          return {
+            ...it,
+            prompt,
+            imageUrl: newVersion.imageUrl,
+            chart: newVersion.chart,
+            table: newVersion.table,
+            versions,
+            currentVersionIndex: versions.length - 1,
+          };
+        }));
+      } else {
+        const item: SessionItem = {
+          id: Math.random().toString(36).slice(2),
+          mode, prompt,
+          imageUrl: newVersion.imageUrl,
+          chart: newVersion.chart,
+          table: newVersion.table,
+          versions: [newVersion],
+          currentVersionIndex: 0,
+        };
+        setSession((s) => [...s, item]);
+        setActiveItemId(item.id);
+      }
       toast.success("Généré !");
     } catch (e: any) {
       toast.error(e.message || "Erreur de génération");
     } finally { setLoading(false); }
   };
 
-  const regenerateChart = () => generate();
+  const regenerate = () => generate({ regenerate: true });
+
+  // Restore a previous version of the active item (without consuming an API call)
+  const restoreVersion = (index: number) => {
+    if (!activeItemId) return;
+    setSession((s) => s.map((it) => {
+      if (it.id !== activeItemId) return it;
+      const v = it.versions?.[index];
+      if (!v) return it;
+      // Reflect into current display
+      setImageUrl(v.imageUrl ?? null);
+      setChart(v.chart ?? null);
+      setTable(v.table ?? null);
+      return {
+        ...it,
+        prompt: v.prompt,
+        imageUrl: v.imageUrl,
+        chart: v.chart,
+        table: v.table,
+        currentVersionIndex: index,
+      };
+    }));
+    toast.success(`Version ${index + 1} restaurée`);
+  };
+
+  const activeItem = activeItemId ? session.find((it) => it.id === activeItemId) ?? null : null;
+  const versionsCount = activeItem?.versions?.length ?? 0;
+  const currentVersionIdx = activeItem?.currentVersionIndex ?? 0;
 
   const downloadImage = () => {
     if (!imageUrl) return;
@@ -216,7 +283,22 @@ function StudioPage() {
     URL.revokeObjectURL(url);
   };
 
-  const removeSessionItem = (id: string) => setSession((s) => s.filter((i) => i.id !== id));
+  const removeSessionItem = (id: string) => {
+    setSession((s) => s.filter((i) => i.id !== id));
+    if (activeItemId === id) { setActiveItemId(null); reset(); }
+  };
+
+  const selectSessionItem = (id: string) => {
+    const it = session.find((s) => s.id === id);
+    if (!it) return;
+    setActiveItemId(id);
+    setMode(it.mode);
+    setPrompt(it.prompt);
+    setImageUrl(it.imageUrl ?? null);
+    setChart(it.chart ?? null);
+    setTable(it.table ?? null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const saveCurrentSession = () => {
     if (!session.length) { toast.error("Génère au moins un visuel avant de sauvegarder."); return; }
@@ -250,6 +332,7 @@ function StudioPage() {
     reset();
     const last = s.items[s.items.length - 1];
     if (last) {
+      setActiveItemId(last.id);
       if (last.imageUrl) setImageUrl(last.imageUrl);
       else if (last.chart) setChart(last.chart);
       else if (last.table) setTable(last.table);
