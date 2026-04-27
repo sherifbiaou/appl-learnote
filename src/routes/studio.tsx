@@ -866,3 +866,54 @@ function loadImg(src: string): Promise<HTMLImageElement> {
     img.src = src;
   });
 }
+
+function VersionStrip({
+  activeItem,
+  versionsCount,
+  currentIdx,
+  onRestore,
+}: {
+  activeItem: SessionItem | null;
+  versionsCount: number;
+  currentIdx: number;
+  onRestore: (i: number) => void;
+}) {
+  if (!activeItem || versionsCount <= 1) return null;
+  const versions = activeItem.versions ?? [];
+  return (
+    <div className="mt-3 rounded-lg border bg-card/40 p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <History className="h-4 w-4 text-primary" />
+        <span className="text-sm font-medium">Historique de ce visuel</span>
+        <Badge variant="outline" className="text-[10px]">{versionsCount} versions</Badge>
+        <span className="ml-auto text-xs text-muted-foreground">Version actuelle : v{currentIdx + 1}</span>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {versions.map((v, i) => {
+          const isActive = i === currentIdx;
+          return (
+            <button
+              key={i}
+              onClick={() => onRestore(i)}
+              className={`group relative rounded-md border px-2 py-1.5 text-xs transition-colors ${isActive ? "border-primary bg-primary/10" : "hover:bg-secondary/40"}`}
+              title={`Restaurer v${i + 1} — ${new Date(v.at).toLocaleTimeString("fr-FR")}`}
+            >
+              <div className="flex items-center gap-1.5">
+                {v.imageUrl ? (
+                  <img src={v.imageUrl} alt={`v${i + 1}`} className="h-8 w-8 rounded object-cover border" />
+                ) : (
+                  <span className="h-8 w-8 rounded border bg-secondary/60 flex items-center justify-center">
+                    {v.chart ? <BarChart3 className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}
+                  </span>
+                )}
+                <span className="font-medium">v{i + 1}</span>
+              </div>
+              <div className="text-[10px] text-muted-foreground">{new Date(v.at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</div>
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-2 text-[11px] text-muted-foreground">Clique sur une version pour la restaurer avant d'exporter ou de sauvegarder. Toute nouvelle régénération s'ajoutera comme nouvelle version.</p>
+    </div>
+  );
+}
