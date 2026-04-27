@@ -106,9 +106,15 @@ function StudioPage() {
   // Session items (everything generated this session) for PDF export
   const [session, setSession] = useState<SessionItem[]>([]);
 
+  // History (saved studio sessions)
+  const [history, setHistory] = useState<SavedStudioSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [currentSessionName, setCurrentSessionName] = useState<string>("");
+  const [saveName, setSaveName] = useState("");
+
   const chartRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setSources(loadSources()); }, []);
+  useEffect(() => { setSources(loadSources()); setHistory(listStudioSessions()); }, []);
 
   const reset = () => { setImageUrl(null); setChart(null); setTable(null); };
 
@@ -211,6 +217,58 @@ function StudioPage() {
   };
 
   const removeSessionItem = (id: string) => setSession((s) => s.filter((i) => i.id !== id));
+
+  const saveCurrentSession = () => {
+    if (!session.length) { toast.error("Génère au moins un visuel avant de sauvegarder."); return; }
+    const name = (saveName || currentSessionName || prompt || "Session Studio").trim().slice(0, 80);
+    const saved = saveStudioSession({
+      id: currentSessionId ?? undefined,
+      name,
+      items: session,
+      theme: { themeId, customPalette, customFont, customVibe },
+      lastPrompt: prompt,
+      lastMode: mode,
+    });
+    setCurrentSessionId(saved.id);
+    setCurrentSessionName(saved.name);
+    setSaveName("");
+    setHistory(listStudioSessions());
+    toast.success(currentSessionId ? "Session mise à jour" : "Session sauvegardée");
+  };
+
+  const openSavedSession = (s: SavedStudioSession) => {
+    setSession(s.items);
+    setThemeId(s.theme.themeId);
+    setCustomPalette(s.theme.customPalette);
+    setCustomFont(s.theme.customFont);
+    setCustomVibe(s.theme.customVibe);
+    if (s.lastPrompt) setPrompt(s.lastPrompt);
+    if (s.lastMode) setMode(s.lastMode);
+    setCurrentSessionId(s.id);
+    setCurrentSessionName(s.name);
+    // Restore the most recent visual as the active result so user can regenerate from it
+    reset();
+    const last = s.items[s.items.length - 1];
+    if (last) {
+      if (last.imageUrl) setImageUrl(last.imageUrl);
+      else if (last.chart) setChart(last.chart);
+      else if (last.table) setTable(last.table);
+    }
+    toast.success(`« ${s.name} » rouverte`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const removeSavedSession = (id: string) => {
+    deleteStudioSession(id);
+    setHistory(listStudioSessions());
+    if (currentSessionId === id) { setCurrentSessionId(null); setCurrentSessionName(""); }
+    toast.success("Session supprimée");
+  };
+
+  const newSession = () => {
+    setSession([]); reset(); setCurrentSessionId(null); setCurrentSessionName(""); setScenario(null); setScenarioValidated(false);
+    toast.success("Nouvelle session vierge");
+  };
 
   const exportSessionPdf = async () => {
     if (!session.length) { toast.error("Rien à exporter pour l'instant."); return; }
