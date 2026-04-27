@@ -684,6 +684,22 @@ function StudioPage() {
                 <Download className="h-4 w-4" /> Télécharger PDF
               </Button>
             </div>
+            <div className="flex gap-2 mb-3 flex-wrap">
+              <Input
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                placeholder={currentSessionName || "Nom de la session (ex. Photosynthèse — révisions)"}
+                className="flex-1 min-w-[200px]"
+              />
+              <Button size="sm" variant="outline" onClick={saveCurrentSession} className="gap-1.5">
+                <Save className="h-4 w-4" /> {currentSessionId ? "Mettre à jour" : "Sauvegarder"}
+              </Button>
+              {currentSessionId && (
+                <Button size="sm" variant="ghost" onClick={() => { saveStudioSession({ name: (saveName || currentSessionName || "Copie").trim(), items: session, theme: { themeId, customPalette, customFont, customVibe }, lastPrompt: prompt, lastMode: mode }); setHistory(listStudioSessions()); toast.success("Copie créée"); }}>
+                  Enregistrer comme nouvelle
+                </Button>
+              )}
+            </div>
             <ul className="space-y-2">
               {session.map((it) => (
                 <li key={it.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-sm">
@@ -697,6 +713,38 @@ function StudioPage() {
             </ul>
           </Card>
         )}
+
+        {/* History panel */}
+        <Card className="p-5 mt-6">
+          <div className="flex items-center gap-2 mb-3">
+            <History className="h-4 w-4 text-primary" />
+            <h2 className="font-semibold">Historique des sessions Studio</h2>
+            <Badge variant="outline" className="ml-auto text-xs">{history.length} sauvegardée{history.length > 1 ? "s" : ""}</Badge>
+          </div>
+          {history.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucune session sauvegardée. Génère des visuels puis clique « Sauvegarder » pour la garder en mémoire.</p>
+          ) : (
+            <ul className="space-y-2">
+              {history.map((s) => (
+                <li key={s.id} className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${currentSessionId === s.id ? "border-primary/50 bg-primary/5" : ""}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{s.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(s.updatedAt).toLocaleString("fr-FR")} • {s.items.length} élément{s.items.length > 1 ? "s" : ""}
+                      {s.lastMode ? ` • dernier : ${s.lastMode}` : ""}
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => openSavedSession(s)} className="gap-1.5">
+                    <FolderOpen className="h-4 w-4" /> Rouvrir
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => removeSavedSession(s.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
       </main>
     </div>
   );
