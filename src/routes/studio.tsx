@@ -14,12 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, ImageIcon, BookOpenCheck, BarChart3, Table as TableIcon, Sparkles, Download, BookOpen, Sigma, Timer, Palette, FileDown, RefreshCw, Check, X, Trash2 } from "lucide-react";
+import { Loader2, ImageIcon, BookOpenCheck, BarChart3, Table as TableIcon, Sparkles, Download, BookOpen, Sigma, Timer, Palette, FileDown, RefreshCw, Check, X, Trash2, Save, FolderOpen, History } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, Legend, CartesianGrid,
 } from "recharts";
 import jsPDF from "jspdf";
+import { listStudioSessions, saveStudioSession, deleteStudioSession, type SavedStudioSession } from "@/lib/studio-history";
 
 export const Route = createFileRoute("/studio")({
   head: () => ({
@@ -105,9 +106,15 @@ function StudioPage() {
   // Session items (everything generated this session) for PDF export
   const [session, setSession] = useState<SessionItem[]>([]);
 
+  // History (saved studio sessions)
+  const [history, setHistory] = useState<SavedStudioSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [currentSessionName, setCurrentSessionName] = useState<string>("");
+  const [saveName, setSaveName] = useState("");
+
   const chartRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setSources(loadSources()); }, []);
+  useEffect(() => { setSources(loadSources()); setHistory(listStudioSessions()); }, []);
 
   const reset = () => { setImageUrl(null); setChart(null); setTable(null); };
 
@@ -210,6 +217,58 @@ function StudioPage() {
   };
 
   const removeSessionItem = (id: string) => setSession((s) => s.filter((i) => i.id !== id));
+
+  const saveCurrentSession = () => {
+    if (!session.length) { toast.error("Génère au moins un visuel avant de sauvegarder."); return; }
+    const name = (saveName || currentSessionName || prompt || "Session Studio").trim().slice(0, 80);
+    const saved = saveStudioSession({
+      id: currentSessionId ?? undefined,
+      name,
+      items: session,
+      theme: { themeId, customPalette, customFont, customVibe },
+      lastPrompt: prompt,
+      lastMode: mode,
+    });
+    setCurrentSessionId(saved.id);
+    setCurrentSessionName(saved.name);
+    setSaveName("");
+    setHistory(listStudioSessions());
+    toast.success(currentSessionId ? "Session mise à jour" : "Session sauvegardée");
+  };
+
+  const openSavedSession = (s: SavedStudioSession) => {
+    setSession(s.items);
+    setThemeId(s.theme.themeId);
+    setCustomPalette(s.theme.customPalette);
+    setCustomFont(s.theme.customFont);
+    setCustomVibe(s.theme.customVibe);
+    if (s.lastPrompt) setPrompt(s.lastPrompt);
+    if (s.lastMode) setMode(s.lastMode);
+    setCurrentSessionId(s.id);
+    setCurrentSessionName(s.name);
+    // Restore the most recent visual as the active result so user can regenerate from it
+    reset();
+    const last = s.items[s.items.length - 1];
+    if (last) {
+      if (last.imageUrl) setImageUrl(last.imageUrl);
+      else if (last.chart) setChart(last.chart);
+      else if (last.table) setTable(last.table);
+    }
+    toast.success(`« ${s.name} » rouverte`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const removeSavedSession = (id: string) => {
+    deleteStudioSession(id);
+    setHistory(listStudioSessions());
+    if (currentSessionId === id) { setCurrentSessionId(null); setCurrentSessionName(""); }
+    toast.success("Session supprimée");
+  };
+
+  const newSession = () => {
+    setSession([]); reset(); setCurrentSessionId(null); setCurrentSessionName(""); setScenario(null); setScenarioValidated(false);
+    toast.success("Nouvelle session vierge");
+  };
 
   const exportSessionPdf = async () => {
     if (!session.length) { toast.error("Rien à exporter pour l'instant."); return; }
@@ -328,10 +387,23 @@ function StudioPage() {
             <p className="mt-2 text-muted-foreground">Image, BD pédagogique, graphique ou tableau — basés sur tes sources et ta demande.</p>
             <p className="mt-1 text-xs text-muted-foreground">📚 {sources.length} source{sources.length > 1 ? "s" : ""} chargée{sources.length > 1 ? "s" : ""} • 🗂️ {session.length} élément{session.length > 1 ? "s" : ""} en session.</p>
           </div>
-          <Button onClick={exportSessionPdf} variant="outline" className="gap-2" disabled={!session.length}>
-            <FileDown className="h-4 w-4" /> Exporter PDF ({session.length})
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button onClick={newSession} variant="ghost" className="gap-2" disabled={!session.length && !currentSessionId}>
+              <Sparkles className="h-4 w-4" /> Nouvelle
+            </Button>
+            <Button onClick={exportSessionPdf} variant="outline" className="gap-2" disabled={!session.length}>
+              <FileDown className="h-4 w-4" /> Exporter PDF ({session.length})
+            </Button>
+          </div>
         </div>
+
+        {currentSessionId && (
+          <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm flex items-center gap-2">
+            <FolderOpen className="h-4 w-4 text-primary" />
+            <span>Session active : <strong>{currentSessionName}</strong></span>
+            <Badge variant="outline" className="ml-auto text-[10px]">Les sauvegardes mettront à jour cette session</Badge>
+          </div>
+        )}
 
         {/* Theme panel */}
         <Card className="p-5 mb-6">
@@ -612,6 +684,22 @@ function StudioPage() {
                 <Download className="h-4 w-4" /> Télécharger PDF
               </Button>
             </div>
+            <div className="flex gap-2 mb-3 flex-wrap">
+              <Input
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                placeholder={currentSessionName || "Nom de la session (ex. Photosynthèse — révisions)"}
+                className="flex-1 min-w-[200px]"
+              />
+              <Button size="sm" variant="outline" onClick={saveCurrentSession} className="gap-1.5">
+                <Save className="h-4 w-4" /> {currentSessionId ? "Mettre à jour" : "Sauvegarder"}
+              </Button>
+              {currentSessionId && (
+                <Button size="sm" variant="ghost" onClick={() => { saveStudioSession({ name: (saveName || currentSessionName || "Copie").trim(), items: session, theme: { themeId, customPalette, customFont, customVibe }, lastPrompt: prompt, lastMode: mode }); setHistory(listStudioSessions()); toast.success("Copie créée"); }}>
+                  Enregistrer comme nouvelle
+                </Button>
+              )}
+            </div>
             <ul className="space-y-2">
               {session.map((it) => (
                 <li key={it.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-sm">
@@ -625,6 +713,38 @@ function StudioPage() {
             </ul>
           </Card>
         )}
+
+        {/* History panel */}
+        <Card className="p-5 mt-6">
+          <div className="flex items-center gap-2 mb-3">
+            <History className="h-4 w-4 text-primary" />
+            <h2 className="font-semibold">Historique des sessions Studio</h2>
+            <Badge variant="outline" className="ml-auto text-xs">{history.length} sauvegardée{history.length > 1 ? "s" : ""}</Badge>
+          </div>
+          {history.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucune session sauvegardée. Génère des visuels puis clique « Sauvegarder » pour la garder en mémoire.</p>
+          ) : (
+            <ul className="space-y-2">
+              {history.map((s) => (
+                <li key={s.id} className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${currentSessionId === s.id ? "border-primary/50 bg-primary/5" : ""}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{s.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(s.updatedAt).toLocaleString("fr-FR")} • {s.items.length} élément{s.items.length > 1 ? "s" : ""}
+                      {s.lastMode ? ` • dernier : ${s.lastMode}` : ""}
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => openSavedSession(s)} className="gap-1.5">
+                    <FolderOpen className="h-4 w-4" /> Rouvrir
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => removeSavedSession(s.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
       </main>
     </div>
   );
