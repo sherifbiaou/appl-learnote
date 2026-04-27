@@ -63,6 +63,15 @@ interface SessionItem {
   imageUrl?: string;
   chart?: ChartData;
   table?: TableData;
+  versions?: ItemVersion[];
+  currentVersionIndex?: number;
+}
+interface ItemVersion {
+  at: number;
+  prompt: string;
+  imageUrl?: string;
+  chart?: ChartData;
+  table?: TableData;
 }
 
 const PALETTE = ["#d4a017", "#7aa2ff", "#9b6dff", "#ff8a5b", "#3ec9a7", "#e64980"];
@@ -105,6 +114,8 @@ function StudioPage() {
 
   // Session items (everything generated this session) for PDF export
   const [session, setSession] = useState<SessionItem[]>([]);
+  // Active item id (the visual currently displayed) — regenerations stack onto it
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   // History (saved studio sessions)
   const [history, setHistory] = useState<SavedStudioSession[]>([]);
@@ -160,7 +171,7 @@ function StudioPage() {
     setScenario({ ...scenario, panels });
   };
 
-  const generate = async () => {
+  const generate = async (opts: { regenerate?: boolean } = {}) => {
     if (!prompt.trim()) { toast.error("Décris ce que tu veux générer."); return; }
     if (mode === "comic" && !scenarioValidated) { toast.error("Génère et valide d'abord le scénario."); return; }
     setLoading(true);
@@ -178,25 +189,84 @@ function StudioPage() {
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
 
-      const item: SessionItem = { id: Math.random().toString(36).slice(2), mode, prompt };
+      const newVersion: ItemVersion = { at: Date.now(), prompt };
       if (mode === "image" || mode === "comic") {
         setImageUrl((data as any).imageUrl);
-        item.imageUrl = (data as any).imageUrl;
+        newVersion.imageUrl = (data as any).imageUrl;
       } else if (mode === "chart") {
         setChart(data as ChartData);
-        item.chart = data as ChartData;
+        newVersion.chart = data as ChartData;
       } else if (mode === "table") {
         setTable(data as TableData);
-        item.table = data as TableData;
+        newVersion.table = data as TableData;
       }
-      setSession((s) => [...s, item]);
+
+      // If regenerating an existing active item of the same mode, push a new version onto it.
+      const existing = activeItemId ? session.find((it) => it.id === activeItemId) : null;
+      if (opts.regenerate && existing && existing.mode === mode) {
+        setSession((s) => s.map((it) => {
+          if (it.id !== existing.id) return it;
+          const baseVersions: ItemVersion[] = it.versions && it.versions.length
+            ? it.versions
+            : [{ at: Date.now(), prompt: it.prompt, imageUrl: it.imageUrl, chart: it.chart, table: it.table }];
+          const versions = [...baseVersions, newVersion];
+          return {
+            ...it,
+            prompt,
+            imageUrl: newVersion.imageUrl,
+            chart: newVersion.chart,
+            table: newVersion.table,
+            versions,
+            currentVersionIndex: versions.length - 1,
+          };
+        }));
+      } else {
+        const item: SessionItem = {
+          id: Math.random().toString(36).slice(2),
+          mode, prompt,
+          imageUrl: newVersion.imageUrl,
+          chart: newVersion.chart,
+          table: newVersion.table,
+          versions: [newVersion],
+          currentVersionIndex: 0,
+        };
+        setSession((s) => [...s, item]);
+        setActiveItemId(item.id);
+      }
       toast.success("Généré !");
     } catch (e: any) {
       toast.error(e.message || "Erreur de génération");
     } finally { setLoading(false); }
   };
 
-  const regenerateChart = () => generate();
+  const regenerate = () => generate({ regenerate: true });
+
+  // Restore a previous version of the active item (without consuming an API call)
+  const restoreVersion = (index: number) => {
+    if (!activeItemId) return;
+    setSession((s) => s.map((it) => {
+      if (it.id !== activeItemId) return it;
+      const v = it.versions?.[index];
+      if (!v) return it;
+      // Reflect into current display
+      setImageUrl(v.imageUrl ?? null);
+      setChart(v.chart ?? null);
+      setTable(v.table ?? null);
+      return {
+        ...it,
+        prompt: v.prompt,
+        imageUrl: v.imageUrl,
+        chart: v.chart,
+        table: v.table,
+        currentVersionIndex: index,
+      };
+    }));
+    toast.success(`Version ${index + 1} restaurée`);
+  };
+
+  const activeItem = activeItemId ? session.find((it) => it.id === activeItemId) ?? null : null;
+  const versionsCount = activeItem?.versions?.length ?? 0;
+  const currentVersionIdx = activeItem?.currentVersionIndex ?? 0;
 
   const downloadImage = () => {
     if (!imageUrl) return;
@@ -216,7 +286,22 @@ function StudioPage() {
     URL.revokeObjectURL(url);
   };
 
-  const removeSessionItem = (id: string) => setSession((s) => s.filter((i) => i.id !== id));
+  const removeSessionItem = (id: string) => {
+    setSession((s) => s.filter((i) => i.id !== id));
+    if (activeItemId === id) { setActiveItemId(null); reset(); }
+  };
+
+  const selectSessionItem = (id: string) => {
+    const it = session.find((s) => s.id === id);
+    if (!it) return;
+    setActiveItemId(id);
+    setMode(it.mode);
+    setPrompt(it.prompt);
+    setImageUrl(it.imageUrl ?? null);
+    setChart(it.chart ?? null);
+    setTable(it.table ?? null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const saveCurrentSession = () => {
     if (!session.length) { toast.error("Génère au moins un visuel avant de sauvegarder."); return; }
@@ -250,6 +335,7 @@ function StudioPage() {
     reset();
     const last = s.items[s.items.length - 1];
     if (last) {
+      setActiveItemId(last.id);
       if (last.imageUrl) setImageUrl(last.imageUrl);
       else if (last.chart) setChart(last.chart);
       else if (last.table) setTable(last.table);
@@ -565,7 +651,7 @@ function StudioPage() {
             </div>
 
             <Button
-              onClick={generate}
+              onClick={() => generate()}
               disabled={loading || (mode === "comic" && !scenarioValidated)}
               size="lg"
               className="w-full text-[oklch(0.2_0.02_80)] font-semibold"
@@ -584,11 +670,12 @@ function StudioPage() {
             <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
               <h2 className="font-semibold">{mode === "comic" ? "BD pédagogique" : "Image générée"}</h2>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={generate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
+                <Button size="sm" variant="outline" onClick={regenerate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
                 <Button size="sm" variant="outline" onClick={downloadImage}><Download className="h-4 w-4" /> Télécharger</Button>
               </div>
             </div>
             <img src={imageUrl} alt={prompt} className="w-full rounded-lg border" />
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
           </Card>
         )}
 
@@ -599,7 +686,7 @@ function StudioPage() {
                 <h2 className="text-lg font-semibold">{chart.title}</h2>
                 {chart.description && <p className="text-sm text-muted-foreground mt-1">{chart.description}</p>}
               </div>
-              <Button size="sm" variant="outline" onClick={regenerateChart}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
+              <Button size="sm" variant="outline" onClick={regenerate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
             </div>
             <div className="h-80 mt-4" ref={chartRef}>
               <ResponsiveContainer width="100%" height="100%">
@@ -638,6 +725,7 @@ function StudioPage() {
                 <ul className="list-disc pl-4 space-y-0.5">{chart.citations.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             ) : null}
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
           </Card>
         )}
 
@@ -646,7 +734,7 @@ function StudioPage() {
             <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
               <h2 className="text-lg font-semibold">{table.title}</h2>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={generate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
+                <Button size="sm" variant="outline" onClick={regenerate}><RefreshCw className="h-4 w-4" /> Régénérer</Button>
                 <Button size="sm" variant="outline" onClick={exportTableCsv}><Download className="h-4 w-4" /> CSV</Button>
               </div>
             </div>
@@ -672,6 +760,7 @@ function StudioPage() {
                 <ul className="list-disc pl-4 space-y-0.5">{table.citations.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             ) : null}
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
           </Card>
         )}
 
@@ -702,12 +791,19 @@ function StudioPage() {
             </div>
             <ul className="space-y-2">
               {session.map((it) => (
-                <li key={it.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-sm">
+                <li
+                  key={it.id}
+                  className={`flex items-center justify-between gap-2 rounded-lg border p-2 text-sm cursor-pointer transition-colors ${activeItemId === it.id ? "border-primary bg-primary/5" : "hover:bg-secondary/40"}`}
+                  onClick={() => selectSessionItem(it.id)}
+                >
                   <span className="flex items-center gap-2 truncate">
                     <Badge variant="outline" className="uppercase text-[10px]">{it.mode}</Badge>
                     <span className="truncate">{it.prompt}</span>
+                    {it.versions && it.versions.length > 1 && (
+                      <Badge variant="secondary" className="text-[10px] gap-1"><History className="h-3 w-3" />{it.versions.length} versions</Badge>
+                    )}
                   </span>
-                  <Button size="icon" variant="ghost" onClick={() => removeSessionItem(it.id)}><Trash2 className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); removeSessionItem(it.id); }}><Trash2 className="h-4 w-4" /></Button>
                 </li>
               ))}
             </ul>
@@ -769,4 +865,55 @@ function loadImg(src: string): Promise<HTMLImageElement> {
     img.onerror = reject;
     img.src = src;
   });
+}
+
+function VersionStrip({
+  activeItem,
+  versionsCount,
+  currentIdx,
+  onRestore,
+}: {
+  activeItem: SessionItem | null;
+  versionsCount: number;
+  currentIdx: number;
+  onRestore: (i: number) => void;
+}) {
+  if (!activeItem || versionsCount <= 1) return null;
+  const versions = activeItem.versions ?? [];
+  return (
+    <div className="mt-3 rounded-lg border bg-card/40 p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <History className="h-4 w-4 text-primary" />
+        <span className="text-sm font-medium">Historique de ce visuel</span>
+        <Badge variant="outline" className="text-[10px]">{versionsCount} versions</Badge>
+        <span className="ml-auto text-xs text-muted-foreground">Version actuelle : v{currentIdx + 1}</span>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {versions.map((v, i) => {
+          const isActive = i === currentIdx;
+          return (
+            <button
+              key={i}
+              onClick={() => onRestore(i)}
+              className={`group relative rounded-md border px-2 py-1.5 text-xs transition-colors ${isActive ? "border-primary bg-primary/10" : "hover:bg-secondary/40"}`}
+              title={`Restaurer v${i + 1} — ${new Date(v.at).toLocaleTimeString("fr-FR")}`}
+            >
+              <div className="flex items-center gap-1.5">
+                {v.imageUrl ? (
+                  <img src={v.imageUrl} alt={`v${i + 1}`} className="h-8 w-8 rounded object-cover border" />
+                ) : (
+                  <span className="h-8 w-8 rounded border bg-secondary/60 flex items-center justify-center">
+                    {v.chart ? <BarChart3 className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}
+                  </span>
+                )}
+                <span className="font-medium">v{i + 1}</span>
+              </div>
+              <div className="text-[10px] text-muted-foreground">{new Date(v.at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</div>
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-2 text-[11px] text-muted-foreground">Clique sur une version pour la restaurer avant d'exporter ou de sauvegarder. Toute nouvelle régénération s'ajoutera comme nouvelle version.</p>
+    </div>
+  );
 }
