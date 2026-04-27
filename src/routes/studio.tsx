@@ -1123,6 +1123,3 @@ function DiffDialog({
     </Dialog>
   );
 }
-    </div>
-  );
-}
