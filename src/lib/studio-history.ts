@@ -1,5 +1,3 @@
-import type { ComponentProps } from "react";
-
 export interface StudioChartData {
   title: string;
   description?: string;
@@ -90,4 +88,3 @@ export function getStudioSession(id: string): SavedStudioSession | undefined {
   return listStudioSessions().find((s) => s.id === id);
 }
 
-export type _Unused = ComponentProps<"div">;
