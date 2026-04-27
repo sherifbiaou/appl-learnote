@@ -387,9 +387,25 @@ function StudioPage() {
             <p className="mt-2 text-muted-foreground">Image, BD pédagogique, graphique ou tableau — basés sur tes sources et ta demande.</p>
             <p className="mt-1 text-xs text-muted-foreground">📚 {sources.length} source{sources.length > 1 ? "s" : ""} chargée{sources.length > 1 ? "s" : ""} • 🗂️ {session.length} élément{session.length > 1 ? "s" : ""} en session.</p>
           </div>
-          <Button onClick={exportSessionPdf} variant="outline" className="gap-2" disabled={!session.length}>
-            <FileDown className="h-4 w-4" /> Exporter PDF ({session.length})
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button onClick={newSession} variant="ghost" className="gap-2" disabled={!session.length && !currentSessionId}>
+              <Sparkles className="h-4 w-4" /> Nouvelle
+            </Button>
+            <Button onClick={exportSessionPdf} variant="outline" className="gap-2" disabled={!session.length}>
+              <FileDown className="h-4 w-4" /> Exporter PDF ({session.length})
+            </Button>
+          </div>
+        </div>
+
+        {currentSessionId && (
+          <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm flex items-center gap-2">
+            <FolderOpen className="h-4 w-4 text-primary" />
+            <span>Session active : <strong>{currentSessionName}</strong></span>
+            <Badge variant="outline" className="ml-auto text-[10px]">Les sauvegardes mettront à jour cette session</Badge>
+          </div>
+        )}
+
+        <div className="hidden">
         </div>
 
         {/* Theme panel */}
