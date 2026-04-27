@@ -14,12 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, ImageIcon, BookOpenCheck, BarChart3, Table as TableIcon, Sparkles, Download, BookOpen, Sigma, Timer, Palette, FileDown, RefreshCw, Check, X, Trash2 } from "lucide-react";
+import { Loader2, ImageIcon, BookOpenCheck, BarChart3, Table as TableIcon, Sparkles, Download, BookOpen, Sigma, Timer, Palette, FileDown, RefreshCw, Check, X, Trash2, Save, FolderOpen, History } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, Legend, CartesianGrid,
 } from "recharts";
 import jsPDF from "jspdf";
+import { listStudioSessions, saveStudioSession, deleteStudioSession, type SavedStudioSession } from "@/lib/studio-history";
 
 export const Route = createFileRoute("/studio")({
   head: () => ({
