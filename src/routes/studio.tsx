@@ -404,7 +404,6 @@ function StudioPage() {
             <Badge variant="outline" className="ml-auto text-[10px]">Les sauvegardes mettront à jour cette session</Badge>
           </div>
         )}
-        </div>
 
         {/* Theme panel */}
         <Card className="p-5 mb-6">
