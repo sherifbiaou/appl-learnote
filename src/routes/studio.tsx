@@ -206,7 +206,10 @@ function StudioPage() {
       if (opts.regenerate && existing && existing.mode === mode) {
         setSession((s) => s.map((it) => {
           if (it.id !== existing.id) return it;
-          const versions = [...(it.versions ?? [{ at: it.versions?.[0]?.at ?? Date.now(), prompt: it.prompt, imageUrl: it.imageUrl, chart: it.chart, table: it.table }]), newVersion];
+          const baseVersions: ItemVersion[] = it.versions && it.versions.length
+            ? it.versions
+            : [{ at: Date.now(), prompt: it.prompt, imageUrl: it.imageUrl, chart: it.chart, table: it.table }];
+          const versions = [...baseVersions, newVersion];
           return {
             ...it,
             prompt,
