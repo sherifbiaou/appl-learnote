@@ -675,6 +675,7 @@ function StudioPage() {
               </div>
             </div>
             <img src={imageUrl} alt={prompt} className="w-full rounded-lg border" />
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
           </Card>
         )}
 
@@ -724,6 +725,7 @@ function StudioPage() {
                 <ul className="list-disc pl-4 space-y-0.5">{chart.citations.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             ) : null}
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
           </Card>
         )}
 
@@ -758,6 +760,7 @@ function StudioPage() {
                 <ul className="list-disc pl-4 space-y-0.5">{table.citations.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             ) : null}
+            <VersionStrip activeItem={activeItem} versionsCount={versionsCount} currentIdx={currentVersionIdx} onRestore={restoreVersion} />
           </Card>
         )}
 
@@ -788,12 +791,19 @@ function StudioPage() {
             </div>
             <ul className="space-y-2">
               {session.map((it) => (
-                <li key={it.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-sm">
+                <li
+                  key={it.id}
+                  className={`flex items-center justify-between gap-2 rounded-lg border p-2 text-sm cursor-pointer transition-colors ${activeItemId === it.id ? "border-primary bg-primary/5" : "hover:bg-secondary/40"}`}
+                  onClick={() => selectSessionItem(it.id)}
+                >
                   <span className="flex items-center gap-2 truncate">
                     <Badge variant="outline" className="uppercase text-[10px]">{it.mode}</Badge>
                     <span className="truncate">{it.prompt}</span>
+                    {it.versions && it.versions.length > 1 && (
+                      <Badge variant="secondary" className="text-[10px] gap-1"><History className="h-3 w-3" />{it.versions.length} versions</Badge>
+                    )}
                   </span>
-                  <Button size="icon" variant="ghost" onClick={() => removeSessionItem(it.id)}><Trash2 className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); removeSessionItem(it.id); }}><Trash2 className="h-4 w-4" /></Button>
                 </li>
               ))}
             </ul>
