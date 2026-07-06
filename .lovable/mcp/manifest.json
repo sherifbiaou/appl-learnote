@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "appquiz-mcp",
+      "version": "0.1.0",
+      "title": "appQuiz MCP"
+    },
+    "tools": [
+      {
+        "name": "generate_quiz",
+        "title": "Generate quiz",
+        "description": "Generate a multiple-choice quiz (4 options per question) from provided text sources using Lovable AI. Returns JSON with title and questions.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "minLength": 20,
+              "description": "Raw text content or notes to build the quiz from."
+            },
+            "questionCount": {
+              "default": 5,
+              "description": "Number of questions to generate (3-20).",
+              "type": "integer",
+              "minimum": 3,
+              "maximum": 20
+            },
+            "language": {
+              "default": "fr",
+              "description": "Language of the questions (e.g. 'fr', 'en').",
+              "type": "string"
+            }
+          },
+          "required": [
+            "content"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "summarize_notes",
+        "title": "Summarize notes",
+        "description": "Produce a concise study summary (key points, definitions) from raw text using Lovable AI.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "minLength": 20,
+              "description": "Notes or source text to summarize."
+            },
+            "language": {
+              "default": "fr",
+              "description": "Output language (e.g. 'fr', 'en').",
+              "type": "string"
+            }
+          },
+          "required": [
+            "content"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
