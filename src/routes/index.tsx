@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Brand } from "@/components/Brand";
+import { ThemePicker } from "@/components/ThemePicker";
 import { toast } from "sonner";
 import {
   FileText, Link2, Image as ImageIcon, Video, Upload, X, Wand2, Loader2, Brain,
@@ -19,16 +20,16 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "appQuiz — Flash quiz interactif depuis vos ressources" },
+      { title: "learnote — Étudier plus vite avec l'IA" },
       {
         name: "description",
         content:
-          "Créez des quiz personnalisés à partir de vos documents, images, vidéos et liens avec SmartQuiz.",
+          "learnote crée quiz, résumés et examens adaptatifs depuis vos documents, images, vidéos et liens.",
       },
-      { property: "og:title", content: "appQuiz — Flash quiz interactif" },
+      { property: "og:title", content: "learnote — Étudier plus vite avec l'IA" },
       {
         property: "og:description",
-        content: "Transformez n'importe quelle ressource en quiz éducatif.",
+        content: "Transformez n'importe quelle ressource en quiz, résumé ou examen personnalisé.",
       },
     ],
   }),
@@ -229,7 +230,8 @@ function Index() {
     <div className="min-h-screen" style={{ background: "var(--gradient-soft)" }}>
       <header className="container mx-auto flex items-center justify-between px-6 py-6">
         <Brand />
-        <nav className="hidden sm:flex items-center gap-1 text-sm">
+        <nav className="flex items-center gap-1 text-sm">
+          <div className="hidden sm:flex items-center gap-1">
           <Link to="/summary" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
             <BookOpen className="h-4 w-4" /> Résumé
           </Link>
@@ -242,18 +244,22 @@ function Index() {
           <Link to="/studio" className="rounded-lg px-3 py-1.5 text-muted-foreground hover:text-primary hover:bg-secondary transition-colors flex items-center gap-1.5">
             <Sparkles className="h-4 w-4" /> Studio
           </Link>
+          </div>
+          <div className="ml-2 pl-2 sm:border-l border-border">
+            <ThemePicker />
+          </div>
         </nav>
       </header>
 
       <main className="container mx-auto px-6 pb-20">
         <section className="mx-auto max-w-3xl text-center pt-8 pb-12">
           <Badge variant="secondary" className="mb-4 gap-1">
-            <Brain className="h-3 w-3" /> SmartQuiz — tuteur intelligent
+            <Brain className="h-3 w-3" /> learnote — étudier avec l'IA
           </Badge>
-          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-foreground">
+          <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight text-foreground">
             Apprenez plus vite,
-            <span className="block bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
-              une question à la fois.
+            <span className="block italic bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
+              une note à la fois.
             </span>
           </h1>
           <p className="mt-4 text-muted-foreground text-lg">
