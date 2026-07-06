@@ -3,6 +3,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { TutorChat } from "@/components/TutorChat";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 function NotFoundComponent() {
   return (
@@ -31,23 +32,27 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
-      { name: "description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
-      { name: "author", content: "SmartQuiz" },
-      { property: "og:title", content: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
-      { property: "og:description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
+      { title: "learnote — Étudier plus vite avec l'IA" },
+      { name: "description", content: "learnote transforme vos cours, PDFs, vidéos et notes en quiz, résumés et examens adaptatifs propulsés par l'IA." },
+      { name: "author", content: "learnote" },
+      { property: "og:title", content: "learnote — Étudier plus vite avec l'IA" },
+      { property: "og:description", content: "Quiz, résumés, formules et examens adaptatifs générés depuis vos ressources." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@ShefAI" },
-      { name: "twitter:title", content: "SmartQuiz— Tuteur intelligent et examens adaptatifs" },
-      { name: "twitter:description", content: "Plateforme d'apprentissage IA: quiz, résumés, formules expliquées, examens chronométrés adaptatifs." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ab709b17-36f2-4018-afa1-9d5fd06e31b9" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ab709b17-36f2-4018-afa1-9d5fd06e31b9" },
+      { name: "twitter:title", content: "learnote — Étudier plus vite avec l'IA" },
+      { name: "twitter:description", content: "Quiz, résumés, formules et examens adaptatifs générés depuis vos ressources." },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Karla:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -72,10 +77,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <>
+    <ThemeProvider>
       <Outlet />
       <TutorChat />
       <Toaster richColors position="top-center" />
-    </>
+    </ThemeProvider>
   );
 }
