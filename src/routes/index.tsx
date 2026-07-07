@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { saveSession, saveSources } from "@/lib/quiz-store";
 import type { QuizSource, Quiz } from "@/lib/quiz-types";
@@ -78,6 +78,12 @@ function Index() {
   const fileRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLInputElement>(null);
   const videoFileRef = useRef<HTMLInputElement>(null);
+
+  // Persist sources whenever they change so Résumé / Formules / Examen / Studio
+  // pages can read them without needing to generate a quiz first.
+  useEffect(() => {
+    saveSources(sources);
+  }, [sources]);
 
   const addText = () => {
     if (!text.trim()) return;
