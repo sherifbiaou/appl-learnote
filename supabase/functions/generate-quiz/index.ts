@@ -34,6 +34,10 @@ serve(async (req) => {
     for (const s of sources) {
       if (s.kind === "image" && s.dataUrl) {
         userContent.push({ type: "image_url", image_url: { url: s.dataUrl } });
+      } else if (s.kind === "document" && s.dataUrl) {
+        // PDFs / docx sent as base64 data URL — Gemini accepts them as file parts.
+        userContent.push({ type: "image_url", image_url: { url: s.dataUrl } });
+        textParts.push(`[Document "${s.label || "document"}" joint ci-dessus] — analyse-le pour construire le quiz.`);
       } else if (s.kind === "video-file" && s.dataUrl) {
         // Gemini accepts inline video via image_url-style data URL on the gateway.
         // Soft cap to avoid huge payloads (we already filter client-side at 20MB for direct mode).

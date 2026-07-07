@@ -44,12 +44,13 @@ async function fileToText(file: File): Promise<string> {
   if (file.type.startsWith("text/") || /\.(txt|md|csv|json)$/i.test(file.name)) {
     return await file.text();
   }
-  // For PDFs/Docx we just send the filename + best-effort text fallback
-  try {
-    return await file.text();
-  } catch {
-    return `Fichier joint: ${file.name}`;
-  }
+  return "";
+}
+
+function isPlainTextFile(file: File): boolean {
+  return (
+    file.type.startsWith("text/") || /\.(txt|md|csv|json)$/i.test(file.name)
+  );
 }
 
 async function fileToDataUrl(file: File): Promise<string> {
@@ -143,8 +144,21 @@ function Index() {
         const dataUrl = await fileToDataUrl(f);
         newOnes.push({ id: uid(), kind: "image", label: f.name, dataUrl });
       } else {
-        const content = await fileToText(f);
-        newOnes.push({ id: uid(), kind: "document", label: f.name, content });
+        if (isPlainTextFile(f)) {
+          const content = await fileToText(f);
+          newOnes.push({ id: uid(), kind: "document", label: f.name, content });
+        } else {
+          // PDFs / docx: send as base64 data URL so the model can read them.
+          const dataUrl = await fileToDataUrl(f);
+          newOnes.push({
+            id: uid(),
+            kind: "document",
+            label: f.name,
+            dataUrl,
+            mimeType: f.type || "application/pdf",
+            sizeBytes: f.size,
+          });
+        }
       }
     }
     setSources((s) => [...s, ...newOnes]);
@@ -158,6 +172,8 @@ function Index() {
       label: s.label,
       content: s.content,
       dataUrl: s.dataUrl,
+      mimeType: s.mimeType,
+      sizeBytes: s.sizeBytes,
     }));
     const { data, error } = await supabase.functions.invoke("generate-quiz", {
       body: { sources: payloadSources, mode, requestedCount: count },
