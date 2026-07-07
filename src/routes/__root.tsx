@@ -41,6 +41,10 @@ export const Route = createRootRoute({
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "learnote — Étudier plus vite avec l'IA" },
       { name: "twitter:description", content: "Quiz, résumés, formules et examens adaptatifs générés depuis vos ressources." },
+      { name: "theme-color", content: "#0d7a5f" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "learnote" },
     ],
     links: [
       {
@@ -48,6 +52,8 @@ export const Route = createRootRoute({
         href: appCss,
       },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/learnote-mark.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
