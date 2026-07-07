@@ -16,6 +16,7 @@ import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as FormulasRouteImport } from './routes/formulas'
 import { Route as ExamRouteImport } from './routes/exam'
+import { Route as BrandKitRouteImport } from './routes/brand-kit'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -56,6 +57,11 @@ const ExamRoute = ExamRouteImport.update({
   path: '/exam',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrandKitRoute = BrandKitRouteImport.update({
+  id: '/brand-kit',
+  path: '/brand-kit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -82,6 +88,7 @@ const Char91DotmcpChar93InvokeToolToolRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/brand-kit': typeof BrandKitRoute
   '/exam': typeof ExamRoute
   '/formulas': typeof FormulasRoute
   '/mcp': typeof McpRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/brand-kit': typeof BrandKitRoute
   '/exam': typeof ExamRoute
   '/formulas': typeof FormulasRoute
   '/mcp': typeof McpRoute
@@ -109,6 +117,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/brand-kit': typeof BrandKitRoute
   '/exam': typeof ExamRoute
   '/formulas': typeof FormulasRoute
   '/mcp': typeof McpRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/brand-kit'
     | '/exam'
     | '/formulas'
     | '/mcp'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/brand-kit'
     | '/exam'
     | '/formulas'
     | '/mcp'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/brand-kit'
     | '/exam'
     | '/formulas'
     | '/mcp'
@@ -164,6 +176,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BrandKitRoute: typeof BrandKitRoute
   ExamRoute: typeof ExamRoute
   FormulasRoute: typeof FormulasRoute
   McpRoute: typeof McpRoute
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brand-kit': {
+      id: '/brand-kit'
+      path: '/brand-kit'
+      fullPath: '/brand-kit'
+      preLoaderRoute: typeof BrandKitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -260,6 +280,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BrandKitRoute: BrandKitRoute,
   ExamRoute: ExamRoute,
   FormulasRoute: FormulasRoute,
   McpRoute: McpRoute,

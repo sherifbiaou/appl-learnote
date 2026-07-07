@@ -1,0 +1,17 @@
+{
+  "name": "learnote — Étudier plus vite avec l'IA",
+  "short_name": "learnote",
+  "description": "Quiz, résumés et examens adaptatifs générés depuis vos cours, PDFs, vidéos et notes.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f0e0",
+  "theme_color": "#0d7a5f",
+  "lang": "fr",
+  "icons": [
+    { "src": "/learnote-mark.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/learnote-mark.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/learnote-mark.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

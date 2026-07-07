@@ -14,8 +14,9 @@ import { ThemePicker } from "@/components/ThemePicker";
 import { toast } from "sonner";
 import {
   FileText, Link2, Image as ImageIcon, Video, Upload, X, Wand2, Loader2, Brain,
-  Search, FileVideo, BookOpen, Sigma, Timer, Sparkles,
+  Search, FileVideo, BookOpen, Sigma, Timer, Sparkles, AlertTriangle, RefreshCw,
 } from "lucide-react";
+import { shuffleQuizOptions } from "@/lib/shuffle-quiz";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -73,6 +74,7 @@ function Index() {
   const [suggesting, setSuggesting] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [topic, setTopic] = useState<string | null>(null);
+  const [errorState, setErrorState] = useState<{ message: string; retryable: boolean } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLInputElement>(null);
   const videoFileRef = useRef<HTMLInputElement>(null);
@@ -204,6 +206,7 @@ function Index() {
   };
 
   const onGenerate = async () => {
+    setErrorState(null);
     // Auto-add pending text/url/video so users don't have to press "Ajouter" first
     let effective = sources;
     const pending: QuizSource[] = [];
@@ -230,16 +233,28 @@ function Index() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      const quiz = data as Quiz;
+      const quiz = shuffleQuizOptions(data as Quiz);
       if (!quiz?.questions?.length) throw new Error("Aucune question générée");
       saveSources(effective);
       saveSession({ quiz, answers: [] });
       navigate({ to: "/quiz" });
     } catch (e: any) {
-      toast.error(e.message || "Échec de la génération");
+      const msg = e?.message || "Échec de la génération";
+      setErrorState({ message: msg, retryable: true });
+      toast.error(msg);
     } finally {
       setGenerating(false);
     }
+  };
+
+  const resetSources = () => {
+    setSources([]);
+    setText(""); setUrl(""); setVideo(""); setWebQuery("");
+    setErrorState(null);
+    if (fileRef.current) fileRef.current.value = "";
+    if (imgRef.current) imgRef.current.value = "";
+    if (videoFileRef.current) videoFileRef.current.value = "";
+    toast.info("Sources réinitialisées — ajoutez d'autres fichiers.");
   };
 
   return (
@@ -483,6 +498,33 @@ function Index() {
               <>Lancer le quiz →</>
             )}
           </Button>
+          {errorState && (
+            <Card className="p-5 border-2 border-destructive/40 bg-destructive/5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-destructive/15 p-2 shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-foreground">Impossible de générer le quiz</p>
+                  <p className="mt-1 text-sm text-muted-foreground break-words">{errorState.message}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Cela peut venir d'un fichier trop lourd, d'un format non lu, ou d'une saturation temporaire de l'IA.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button size="sm" onClick={onGenerate} disabled={generating}>
+                      <RefreshCw className="h-4 w-4" /> Réessayer
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={resetSources}>
+                      <X className="h-4 w-4" /> Changer de sources
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setErrorState(null)}>
+                      Fermer
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
           {sources.length === 0 && !text.trim() && !url.trim() && !video.trim() && (
             <p className="text-center text-sm text-muted-foreground -mt-2">
               Ajoutez d'abord une source (texte, lien, document, image ou vidéo) ci-dessus.
