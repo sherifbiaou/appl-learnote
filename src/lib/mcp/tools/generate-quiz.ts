@@ -24,7 +24,21 @@ export default defineTool({
       .describe("Language of the questions (e.g. 'fr', 'en')."),
   },
   annotations: { readOnlyHint: true, openWorldHint: true },
-  handler: async ({ content, questionCount, language }) => {
+  handler: async ({ content, questionCount, language }, ctx) => {
+    // Access-token gate (prevents anonymous cost abuse).
+    const requiredToken = process.env.MCP_ACCESS_TOKEN;
+    if (!requiredToken) {
+      return {
+        content: [{ type: "text", text: "MCP access is disabled: MCP_ACCESS_TOKEN is not configured on the server." }],
+        isError: true,
+      };
+    }
+    const token = ctx?.getToken?.();
+    if (!token || token !== requiredToken) {
+      return { content: [{ type: "text", text: "Unauthorized" }], isError: true };
+    }
+    // Cap content length to bound per-call cost.
+    const boundedContent = content.length > 50_000 ? content.slice(0, 50_000) : content;
     const key = process.env.LOVABLE_API_KEY;
     if (!key) {
       return {
@@ -43,7 +57,7 @@ export default defineTool({
             role: "system",
             content: `You are a pedagogical quiz creator. Produce exactly ${questionCount} MCQ (4 options each) covering the most important aspects. Answer in ${language}. For each question include a short explanation.`,
           },
-          { role: "user", content },
+          { role: "user", content: boundedContent },
         ],
         tools: [
           {

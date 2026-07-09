@@ -18,11 +18,29 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Payload cap (~8MB) to bound per-call cost
+    const clen = Number(req.headers.get("content-length") || 0);
+    if (clen > 8_000_000) {
+      return new Response(JSON.stringify({ error: "Payload trop volumineux (max 8MB)" }), {
+        status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const { sources, requestedCount, mode } = await req.json() as {
       sources: SourcePart[];
       requestedCount?: number;
       mode: "suggest" | "generate";
     };
+    // Sanity caps on source content
+    if (Array.isArray(sources)) {
+      for (const s of sources) {
+        if (typeof s?.content === "string" && s.content.length > 200_000) s.content = s.content.slice(0, 200_000);
+      }
+    }
+    if (typeof requestedCount === "number" && requestedCount > 50) {
+      return new Response(JSON.stringify({ error: "Nombre de questions max: 50" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");

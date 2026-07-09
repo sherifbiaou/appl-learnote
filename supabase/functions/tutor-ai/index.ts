@@ -17,12 +17,24 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const clen = Number(req.headers.get("content-length") || 0);
+    if (clen > 2_000_000) {
+      return new Response(JSON.stringify({ error: "Payload trop volumineux" }), {
+        status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const body = await req.json() as {
       mode: "chat" | "plan" | "sheet";
       messages?: ChatMsg[];
       quiz?: QuizContext;
       focusQuestionIndex?: number;
     };
+    if (Array.isArray(body.messages)) {
+      body.messages = body.messages.slice(-30).map(m => ({
+        role: m.role,
+        content: typeof m.content === "string" ? m.content.slice(0, 20_000) : "",
+      }));
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
