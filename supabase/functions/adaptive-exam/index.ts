@@ -45,6 +45,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const clen = Number(req.headers.get("content-length") || 0);
+    if (clen > 4_000_000) {
+      return new Response(JSON.stringify({ error: "Payload trop volumineux" }), {
+        status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const body = await req.json();
     const sources: SourcePart[] = body.sources || [];
     const previous: PrevAnswer[] = body.previous || [];
