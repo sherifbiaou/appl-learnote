@@ -24,7 +24,7 @@ export default defineTool({
       .describe("Language of the questions (e.g. 'fr', 'en')."),
   },
   annotations: { readOnlyHint: true, openWorldHint: true },
-  handler: async ({ content, questionCount, language }) => {
+  handler: async ({ content, questionCount, language }, ctx) => {
     // Access-token gate (prevents anonymous cost abuse).
     const requiredToken = process.env.MCP_ACCESS_TOKEN;
     if (!requiredToken) {
@@ -33,13 +33,7 @@ export default defineTool({
         isError: true,
       };
     }
-    // The mcp-js runtime exposes the bearer via ToolContext.getToken(); we
-    // check it via the second handler arg to keep this tool self-contained.
-    // If the caller did not send Authorization: Bearer <MCP_ACCESS_TOKEN>, deny.
-    // (Second arg is injected by @lovable.dev/mcp-js.)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ctx = (arguments as any)[1];
-    const token: string | undefined = ctx?.getToken?.();
+    const token = ctx?.getToken?.();
     if (!token || token !== requiredToken) {
       return { content: [{ type: "text", text: "Unauthorized" }], isError: true };
     }
