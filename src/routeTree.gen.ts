@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as StudioRouteImport } from './routes/studio'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -30,6 +31,11 @@ const SummaryRoute = SummaryRouteImport.update({
 const StudioRoute = StudioRouteImport.update({
   id: '/studio',
   path: '/studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultsRoute = ResultsRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studio': typeof StudioRoute
   '/summary': typeof SummaryRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studio': typeof StudioRoute
   '/summary': typeof SummaryRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studio': typeof StudioRoute
   '/summary': typeof SummaryRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/quiz'
     | '/results'
+    | '/sitemap.xml'
     | '/studio'
     | '/summary'
     | '/.mcp/list-tools'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/quiz'
     | '/results'
+    | '/sitemap.xml'
     | '/studio'
     | '/summary'
     | '/.mcp/list-tools'
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/quiz'
     | '/results'
+    | '/sitemap.xml'
     | '/studio'
     | '/summary'
     | '/.mcp/list-tools'
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   QuizRoute: typeof QuizRoute
   ResultsRoute: typeof ResultsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StudioRoute: typeof StudioRoute
   SummaryRoute: typeof SummaryRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -203,6 +216,13 @@ declare module '@tanstack/react-router' {
       path: '/studio'
       fullPath: '/studio'
       preLoaderRoute: typeof StudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/results': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   QuizRoute: QuizRoute,
   ResultsRoute: ResultsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StudioRoute: StudioRoute,
   SummaryRoute: SummaryRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
