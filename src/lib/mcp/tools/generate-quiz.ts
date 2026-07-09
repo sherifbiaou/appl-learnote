@@ -38,7 +38,7 @@ export default defineTool({
       return { content: [{ type: "text", text: "Unauthorized" }], isError: true };
     }
     // Cap content length to bound per-call cost.
-    if (content.length > 50_000) content = content.slice(0, 50_000);
+    const boundedContent = content.length > 50_000 ? content.slice(0, 50_000) : content;
     const key = process.env.LOVABLE_API_KEY;
     if (!key) {
       return {
@@ -57,7 +57,7 @@ export default defineTool({
             role: "system",
             content: `You are a pedagogical quiz creator. Produce exactly ${questionCount} MCQ (4 options each) covering the most important aspects. Answer in ${language}. For each question include a short explanation.`,
           },
-          { role: "user", content },
+          { role: "user", content: boundedContent },
         ],
         tools: [
           {
