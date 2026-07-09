@@ -1,0 +1,19 @@
+# learnote
+
+> learnote transforme vos cours, PDFs, vidéos et notes en quiz interactifs, résumés structurés, fiches de formules et examens adaptatifs propulsés par l'IA.
+
+learnote est une application web (français) pour étudiants et autodidactes. À partir de sources (texte, documents, images, vidéos, liens web, recherche Google), elle génère automatiquement des quiz à choix multiples, des résumés, des recueils de formules avec démonstrations, des examens chronométrés à difficulté adaptative, ainsi que des visuels pédagogiques (images, BD, graphiques, tableaux). Un tuteur IA accompagne la révision.
+
+## Pages
+
+- [Accueil](/): importer ses sources et lancer un quiz IA.
+- [Quiz](/quiz): session de quiz interactive en cours.
+- [Résultats](/results): score, révisions et plan d'étude personnalisé.
+- [Résumé des sources](/summary): synthèse structurée et concepts clés.
+- [Formules](/formulas): recueil LaTeX avec démonstrations pas à pas.
+- [Examen adaptatif](/exam): examen chronométré à difficulté adaptative.
+- [Studio visuel](/studio): génération d'images, BD, graphiques et tableaux.
+
+## Optional
+
+- [Kit de marque](/brand-kit): logos, palette et meta tags learnote.
