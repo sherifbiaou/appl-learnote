@@ -16,9 +16,14 @@ import { loadExamBank, addExam, removeExam, updateExam, type SavedExam } from "@
 export const Route = createFileRoute("/exam")({
   head: () => ({
     meta: [
-      { title: "Examen adaptatif chronométré — SmartQuiz" },
-      { name: "description", content: "Mode examen avec chronomètre où l'IA ajuste la difficulté selon vos réponses." },
+      { title: "Examen adaptatif chronométré — learnote" },
+      { name: "description", content: "Passez un examen chronométré où l'IA ajuste la difficulté des questions selon vos réponses pour tester réellement vos connaissances." },
+      { property: "og:title", content: "Examen adaptatif chronométré — learnote" },
+      { property: "og:description", content: "Passez un examen chronométré où l'IA ajuste la difficulté des questions selon vos réponses pour tester réellement vos connaissances." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/exam" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/exam" }],
   }),
   component: ExamPage,
 });
