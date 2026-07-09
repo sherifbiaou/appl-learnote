@@ -1,16 +1,16 @@
 project_id = "funlvgdyqxndfgribktk"
 
 [functions.generate-quiz]
-verify_jwt = false
+verify_jwt = true
 
 [functions.tutor-ai]
-verify_jwt = false
+verify_jwt = true
 
 [functions.analyze-sources]
-verify_jwt = false
+verify_jwt = true
 
 [functions.adaptive-exam]
-verify_jwt = false
+verify_jwt = true
 
 [functions.visual-studio]
-verify_jwt = false
+verify_jwt = true
