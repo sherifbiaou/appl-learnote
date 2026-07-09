@@ -11,7 +11,19 @@ export default defineTool({
     language: z.string().default("fr").describe("Output language (e.g. 'fr', 'en')."),
   },
   annotations: { readOnlyHint: true, openWorldHint: true },
-  handler: async ({ content, language }) => {
+  handler: async ({ content, language }, ctx) => {
+    const requiredToken = process.env.MCP_ACCESS_TOKEN;
+    if (!requiredToken) {
+      return {
+        content: [{ type: "text", text: "MCP access is disabled: MCP_ACCESS_TOKEN is not configured on the server." }],
+        isError: true,
+      };
+    }
+    const token = ctx?.getToken?.();
+    if (!token || token !== requiredToken) {
+      return { content: [{ type: "text", text: "Unauthorized" }], isError: true };
+    }
+    const boundedContent = content.length > 50_000 ? content.slice(0, 50_000) : content;
     const key = process.env.LOVABLE_API_KEY;
     if (!key) {
       return {
@@ -29,7 +41,7 @@ export default defineTool({
             role: "system",
             content: `You are a study assistant. Produce a concise structured summary with key points, definitions, and formulas. Answer in ${language}. Use markdown.`,
           },
-          { role: "user", content },
+          { role: "user", content: boundedContent },
         ],
       }),
     });
