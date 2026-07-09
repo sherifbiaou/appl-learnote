@@ -66,9 +66,10 @@ function ResultsPage() {
               <Trophy className="h-8 w-8 text-primary-foreground" />
             </div>
             <p className="text-sm uppercase tracking-wider text-muted-foreground">{verdict}</p>
-            <h1 className="mt-2 text-5xl font-bold tracking-tight">
+            <h1 className="mt-2 text-3xl font-bold tracking-tight">Résultats du quiz</h1>
+            <p className="mt-2 text-5xl font-bold tracking-tight">
               {score}<span className="text-muted-foreground">/{total}</span>
-            </h1>
+            </p>
             <p className="mt-2 text-2xl font-semibold text-primary">{pct}%</p>
             <p className="mt-2 text-sm text-muted-foreground truncate">{session.quiz.title}</p>
 
