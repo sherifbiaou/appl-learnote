@@ -11,9 +11,14 @@ import { Check, X } from "lucide-react";
 export const Route = createFileRoute("/quiz")({
   head: () => ({
     meta: [
-      { title: "Quiz en cours — appQuiz" },
-      { name: "description", content: "Répondez aux questions générées par l'IA." },
+      { title: "Quiz en cours — learnote" },
+      { name: "description", content: "Répondez aux questions à choix multiples générées par l'IA à partir de vos cours, PDFs et notes personnelles sur learnote." },
+      { property: "og:title", content: "Quiz en cours — learnote" },
+      { property: "og:description", content: "Répondez aux questions à choix multiples générées par l'IA à partir de vos cours, PDFs et notes personnelles sur learnote." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/quiz" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/quiz" }],
   }),
   component: QuizPage,
 });
@@ -73,6 +78,7 @@ function QuizPage() {
 
       <main className="container mx-auto px-6 pb-20">
         <div className="mx-auto max-w-2xl">
+          <h1 className="sr-only">Votre quiz learnote — {session.quiz.title}</h1>
           <div className="mb-6">
             <div className="flex justify-between text-xs uppercase tracking-wide text-muted-foreground mb-2">
               <span>Question {idx + 1} / {total}</span>

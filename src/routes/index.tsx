@@ -32,6 +32,31 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Transformez n'importe quelle ressource en quiz, résumé ou examen personnalisé.",
       },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "learnote",
+          url: "https://appl-learnote.lovable.app/",
+          logo: "https://appl-learnote.lovable.app/learnote-mark.png",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "learnote",
+          url: "https://appl-learnote.lovable.app/",
+          inLanguage: "fr",
+        }),
+      },
     ],
   }),
   component: Index,

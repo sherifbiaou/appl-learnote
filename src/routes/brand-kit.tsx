@@ -15,7 +15,10 @@ export const Route = createFileRoute("/brand-kit")({
       { name: "description", content: "Téléchargez le kit de marque learnote : favicon, icônes PWA, palette Émeraude Prestige et meta tags prêts à copier pour vos déploiements." },
       { property: "og:title", content: "Kit de marque learnote" },
       { property: "og:description", content: "Favicon, icônes, palette et meta tags — tout pour déployer aux couleurs learnote." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/brand-kit" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/brand-kit" }],
   }),
   component: BrandKitPage,
 });

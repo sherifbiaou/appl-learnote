@@ -26,9 +26,14 @@ import { listStudioSessions, saveStudioSession, deleteStudioSession, type SavedS
 export const Route = createFileRoute("/studio")({
   head: () => ({
     meta: [
-      { title: "Studio visuel — SmartQuiz" },
-      { name: "description", content: "Génère images, BD, graphiques et tableaux pour mieux comprendre tes notions." },
+      { title: "Studio visuel — learnote" },
+      { name: "description", content: "Générez images pédagogiques, bandes dessinées, graphiques et tableaux à partir de vos notions grâce à l'IA pour mieux mémoriser vos cours." },
+      { property: "og:title", content: "Studio visuel — learnote" },
+      { property: "og:description", content: "Générez images pédagogiques, bandes dessinées, graphiques et tableaux à partir de vos notions grâce à l'IA pour mieux mémoriser vos cours." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/studio" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/studio" }],
   }),
   component: StudioPage,
 });
@@ -922,7 +927,7 @@ function VersionStrip({
             >
               <div className="flex items-center gap-1.5">
                 {v.imageUrl ? (
-                  <img src={v.imageUrl} alt={`v${i + 1}`} className="h-8 w-8 rounded object-cover border" />
+                  <img src={v.imageUrl} alt={`Version ${i + 1} du visuel généré`} className="h-8 w-8 rounded object-cover border" />
                 ) : (
                   <span className="h-8 w-8 rounded border bg-secondary/60 flex items-center justify-center">
                     {v.chart ? <BarChart3 className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}

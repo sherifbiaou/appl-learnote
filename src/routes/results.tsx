@@ -11,9 +11,14 @@ import { StudyPlan } from "@/components/StudyPlan";
 export const Route = createFileRoute("/results")({
   head: () => ({
     meta: [
-      { title: "Résultats — appQuiz" },
-      { name: "description", content: "Votre score et vos révisions." },
+      { title: "Résultats du quiz — learnote" },
+      { name: "description", content: "Consultez votre score, révisez vos erreurs et obtenez un plan d'étude personnalisé généré par l'IA pour progresser sur learnote." },
+      { property: "og:title", content: "Résultats du quiz — learnote" },
+      { property: "og:description", content: "Consultez votre score, révisez vos erreurs et obtenez un plan d'étude personnalisé généré par l'IA pour progresser sur learnote." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/results" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/results" }],
   }),
   component: ResultsPage,
 });
@@ -61,9 +66,10 @@ function ResultsPage() {
               <Trophy className="h-8 w-8 text-primary-foreground" />
             </div>
             <p className="text-sm uppercase tracking-wider text-muted-foreground">{verdict}</p>
-            <h1 className="mt-2 text-5xl font-bold tracking-tight">
+            <h1 className="mt-2 text-3xl font-bold tracking-tight">Résultats du quiz</h1>
+            <p className="mt-2 text-5xl font-bold tracking-tight">
               {score}<span className="text-muted-foreground">/{total}</span>
-            </h1>
+            </p>
             <p className="mt-2 text-2xl font-semibold text-primary">{pct}%</p>
             <p className="mt-2 text-sm text-muted-foreground truncate">{session.quiz.title}</p>
 
