@@ -26,9 +26,14 @@ import { listStudioSessions, saveStudioSession, deleteStudioSession, type SavedS
 export const Route = createFileRoute("/studio")({
   head: () => ({
     meta: [
-      { title: "Studio visuel — SmartQuiz" },
-      { name: "description", content: "Génère images, BD, graphiques et tableaux pour mieux comprendre tes notions." },
+      { title: "Studio visuel — learnote" },
+      { name: "description", content: "Générez images pédagogiques, bandes dessinées, graphiques et tableaux à partir de vos notions grâce à l'IA pour mieux mémoriser vos cours." },
+      { property: "og:title", content: "Studio visuel — learnote" },
+      { property: "og:description", content: "Générez images pédagogiques, bandes dessinées, graphiques et tableaux à partir de vos notions grâce à l'IA pour mieux mémoriser vos cours." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/studio" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/studio" }],
   }),
   component: StudioPage,
 });
