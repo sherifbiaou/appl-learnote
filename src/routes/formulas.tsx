@@ -15,9 +15,24 @@ import { Loader2, Sigma, BookOpen, Timer, Sparkles, ChevronRight } from "lucide-
 export const Route = createFileRoute("/formulas")({
   head: () => ({
     meta: [
-      { title: "Formules détectées — SmartQuiz" },
-      { name: "description", content: "Formules extraites de vos sources, affichées en LaTeX avec démonstration interactive." },
+      { title: "Formules détectées — learnote" },
+      { name: "description", content: "Toutes les formules extraites de vos sources, affichées en LaTeX avec démonstrations pas à pas expliquées par l'IA pour mieux comprendre." },
+      { property: "og:title", content: "Formules détectées — learnote" },
+      { property: "og:description", content: "Toutes les formules extraites de vos sources, affichées en LaTeX avec démonstrations pas à pas expliquées par l'IA pour mieux comprendre." },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/formulas" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/formulas" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: "Formules détectées — learnote",
+        description: "Formules mathématiques extraites de vos sources, en LaTeX avec démonstrations.",
+        inLanguage: "fr",
+      }),
+    }],
   }),
   component: FormulasPage,
 });
