@@ -13,9 +13,24 @@ import { Loader2, BookOpen, Sigma, Timer, Sparkles } from "lucide-react";
 export const Route = createFileRoute("/summary")({
   head: () => ({
     meta: [
-      { title: "Résumé des sources — SmartQuiz" },
-      { name: "description", content: "Résumé structuré et concepts clés extraits par l'IA de vos sources." },
+      { title: "Résumé des sources — learnote" },
+      { name: "description", content: "Obtenez un résumé structuré, des concepts clés et un plan de révision extraits automatiquement par l'IA à partir de vos cours et notes." },
+      { property: "og:title", content: "Résumé des sources — learnote" },
+      { property: "og:description", content: "Obtenez un résumé structuré, des concepts clés et un plan de révision extraits automatiquement par l'IA à partir de vos cours et notes." },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: "https://appl-learnote.lovable.app/summary" },
     ],
+    links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/summary" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: "Résumé des sources — learnote",
+        description: "Résumé structuré et concepts clés extraits par l'IA de vos sources.",
+        inLanguage: "fr",
+      }),
+    }],
   }),
   component: SummaryPage,
 });
