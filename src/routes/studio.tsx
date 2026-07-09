@@ -927,7 +927,7 @@ function VersionStrip({
             >
               <div className="flex items-center gap-1.5">
                 {v.imageUrl ? (
-                  <img src={v.imageUrl} alt={`v${i + 1}`} className="h-8 w-8 rounded object-cover border" />
+                  <img src={v.imageUrl} alt={`Version ${i + 1} du visuel généré`} className="h-8 w-8 rounded object-cover border" />
                 ) : (
                   <span className="h-8 w-8 rounded border bg-secondary/60 flex items-center justify-center">
                     {v.chart ? <BarChart3 className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}
