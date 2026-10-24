@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import "katex/dist/katex.min.css";
-import { BlockMath, InlineMath } from "react-katex";
+import ReactKatex from "react-katex";
 import { supabase } from "@/lib/supabase";
 import { loadSources } from "@/lib/quiz-store";
 import type { QuizSource } from "@/lib/quiz-types";
@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Sigma, BookOpen, Timer, Sparkles, ChevronRight } from "lucide-react";
 
+const { BlockMath, InlineMath } = ReactKatex;
+
 export const Route = createFileRoute("/formulas")({
   head: () => ({
     meta: [
@@ -19,17 +21,21 @@ export const Route = createFileRoute("/formulas")({
       { name: "description", content: "Toutes les formules extraites de vos sources, affichées en LaTeX avec démonstrations pas à pas expliquées par l'IA pour mieux comprendre." },
       { property: "og:title", content: "Formules détectées — learnote" },
       { property: "og:description", content: "Toutes les formules extraites de vos sources, affichées en LaTeX avec démonstrations pas à pas expliquées par l'IA pour mieux comprendre." },
-      { property: "og:type", content: "article" },
+      { property: "og:type", content: "website" },
       { property: "og:url", content: "https://appl-learnote.lovable.app/formulas" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Formules détectées — learnote" },
+      { name: "twitter:description", content: "Toutes les formules extraites de vos sources, affichées en LaTeX avec démonstrations pas à pas expliquées par l'IA pour mieux comprendre." },
     ],
     links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/formulas" }],
     scripts: [{
       type: "application/ld+json",
       children: JSON.stringify({
         "@context": "https://schema.org",
-        "@type": "Article",
-        headline: "Formules détectées — learnote",
-        description: "Formules mathématiques extraites de vos sources, en LaTeX avec démonstrations.",
+        "@type": "WebPage",
+        name: "Formules détectées — learnote",
+        description: "Toutes les formules extraites de vos sources, affichées en LaTeX avec démonstrations pas à pas expliquées par l'IA pour mieux comprendre.",
+        url: "https://appl-learnote.lovable.app/formulas",
         inLanguage: "fr",
       }),
     }],

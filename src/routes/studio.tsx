@@ -32,8 +32,22 @@ export const Route = createFileRoute("/studio")({
       { property: "og:description", content: "Générez images pédagogiques, bandes dessinées, graphiques et tableaux à partir de vos notions grâce à l'IA pour mieux mémoriser vos cours." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://appl-learnote.lovable.app/studio" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Studio visuel — learnote" },
+      { name: "twitter:description", content: "Générez images pédagogiques, bandes dessinées, graphiques et tableaux à partir de vos notions grâce à l'IA pour mieux mémoriser vos cours." },
     ],
     links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/studio" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Studio visuel — learnote",
+        description: "Générez images pédagogiques, bandes dessinées, graphiques et tableaux à partir de vos notions grâce à l'IA pour mieux mémoriser vos cours.",
+        url: "https://appl-learnote.lovable.app/studio",
+        inLanguage: "fr",
+      }),
+    }],
   }),
   component: StudioPage,
 });

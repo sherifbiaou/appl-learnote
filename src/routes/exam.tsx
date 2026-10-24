@@ -22,8 +22,22 @@ export const Route = createFileRoute("/exam")({
       { property: "og:description", content: "Passez un examen chronométré où l'IA ajuste la difficulté des questions selon vos réponses pour tester réellement vos connaissances." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://appl-learnote.lovable.app/exam" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Examen adaptatif chronométré — learnote" },
+      { name: "twitter:description", content: "Passez un examen chronométré où l'IA ajuste la difficulté des questions selon vos réponses pour tester réellement vos connaissances." },
     ],
     links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/exam" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Examen adaptatif chronométré — learnote",
+        description: "Passez un examen chronométré où l'IA ajuste la difficulté des questions selon vos réponses pour tester réellement vos connaissances.",
+        url: "https://appl-learnote.lovable.app/exam",
+        inLanguage: "fr",
+      }),
+    }],
   }),
   component: ExamPage,
 });
