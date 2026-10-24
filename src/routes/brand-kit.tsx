@@ -17,8 +17,22 @@ export const Route = createFileRoute("/brand-kit")({
       { property: "og:description", content: "Favicon, icônes, palette et meta tags — tout pour déployer aux couleurs learnote." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://appl-learnote.lovable.app/brand-kit" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Kit de marque learnote" },
+      { name: "twitter:description", content: "Favicon, icônes, palette et meta tags — tout pour déployer aux couleurs learnote." },
     ],
     links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/brand-kit" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Kit de marque learnote",
+        description: "Favicon, icônes, palette et meta tags — tout pour déployer aux couleurs learnote.",
+        url: "https://appl-learnote.lovable.app/brand-kit",
+        inLanguage: "fr",
+      }),
+    }],
   }),
   component: BrandKitPage,
 });

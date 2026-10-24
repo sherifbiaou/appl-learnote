@@ -35,6 +35,7 @@ export const Route = createRootRoute({
       { title: "learnote — Étudier plus vite avec l'IA" },
       { name: "description", content: "learnote transforme vos cours, PDFs, vidéos et notes en quiz, résumés et examens adaptatifs propulsés par l'IA." },
       { name: "author", content: "learnote" },
+      { name: "google-site-verification", content: "YnTGEfEsgw86W8QBBYyaz7mBd07yr860NmO0tfXkzUM" },
       { property: "og:title", content: "learnote — Étudier plus vite avec l'IA" },
       { property: "og:description", content: "Quiz, résumés, formules et examens adaptatifs générés depuis vos ressources." },
       { property: "og:type", content: "website" },
@@ -69,7 +70,7 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <HeadContent />
       </head>

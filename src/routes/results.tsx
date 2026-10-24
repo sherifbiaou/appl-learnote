@@ -17,8 +17,22 @@ export const Route = createFileRoute("/results")({
       { property: "og:description", content: "Consultez votre score, révisez vos erreurs et obtenez un plan d'étude personnalisé généré par l'IA pour progresser sur learnote." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://appl-learnote.lovable.app/results" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Résultats du quiz — learnote" },
+      { name: "twitter:description", content: "Consultez votre score, révisez vos erreurs et obtenez un plan d'étude personnalisé généré par l'IA pour progresser sur learnote." },
     ],
     links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/results" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Résultats du quiz — learnote",
+        description: "Consultez votre score, révisez vos erreurs et obtenez un plan d'étude personnalisé généré par l'IA pour progresser sur learnote.",
+        url: "https://appl-learnote.lovable.app/results",
+        inLanguage: "fr",
+      }),
+    }],
   }),
   component: ResultsPage,
 });

@@ -34,6 +34,9 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://appl-learnote.lovable.app/" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "learnote — Étudier plus vite avec l'IA" },
+      { name: "twitter:description", content: "Transformez n'importe quelle ressource en quiz, résumé ou examen personnalisé." },
     ],
     links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/" }],
     scripts: [

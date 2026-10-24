@@ -17,8 +17,22 @@ export const Route = createFileRoute("/quiz")({
       { property: "og:description", content: "Répondez aux questions à choix multiples générées par l'IA à partir de vos cours, PDFs et notes personnelles sur learnote." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://appl-learnote.lovable.app/quiz" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Quiz en cours — learnote" },
+      { name: "twitter:description", content: "Répondez aux questions à choix multiples générées par l'IA à partir de vos cours, PDFs et notes personnelles sur learnote." },
     ],
     links: [{ rel: "canonical", href: "https://appl-learnote.lovable.app/quiz" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Quiz en cours — learnote",
+        description: "Répondez aux questions à choix multiples générées par l'IA à partir de vos cours, PDFs et notes personnelles sur learnote.",
+        url: "https://appl-learnote.lovable.app/quiz",
+        inLanguage: "fr",
+      }),
+    }],
   }),
   component: QuizPage,
 });
