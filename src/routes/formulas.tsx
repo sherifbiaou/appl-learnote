@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import "katex/dist/katex.min.css";
-import { BlockMath, InlineMath } from "react-katex";
+import ReactKatex from "react-katex";
 import { supabase } from "@/lib/supabase";
 import { loadSources } from "@/lib/quiz-store";
 import type { QuizSource } from "@/lib/quiz-types";
@@ -11,6 +11,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Sigma, BookOpen, Timer, Sparkles, ChevronRight } from "lucide-react";
+
+const { BlockMath, InlineMath } = ReactKatex;
 
 export const Route = createFileRoute("/formulas")({
   head: () => ({
